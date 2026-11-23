@@ -1809,17 +1809,15 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
   new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   if(document.fonts) document.fonts.ready.then(redraw);
-  // en-tête : le point parcourt la courbe du prix dans sa plage, puis repart
+  // en-tête : le point fait des allers-retours sur la courbe du prix, dans sa plage (comme l'hyperbole de la présentation CLMM)
   (function(){
-    const path=document.getElementById('hcPath'), dot=document.getElementById('hcDot'), trail=true; if(!path||!dot) return;
-    const L=path.getTotalLength(), DUR=9000, PAUSE=1400;
+    const path=document.getElementById('hcPath'), dot=document.getElementById('hcDot'); if(!path||!dot) return;
+    const L=path.getTotalLength();
     const place=u=>{ const pt=path.getPointAtLength(u*L); dot.setAttribute('cx',pt.x.toFixed(1)); dot.setAttribute('cy',pt.y.toFixed(1));
-      if(trail){ path.style.strokeDasharray=L; path.style.strokeDashoffset=L*(1-u); } };
+      path.style.strokeDasharray=L; path.style.strokeDashoffset=L*(1-u); };
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){ place(1); return; }
-    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-    let t0=null, vis=true;
-    new IntersectionObserver(es=>{ vis=es[0].isIntersecting; }).observe(path.closest('header')||path);
-    function frame(ts){ if(t0===null) t0=ts; const e=(ts-t0)%(DUR+PAUSE); if(vis) place(e<DUR?ease(e/DUR):1); requestAnimationFrame(frame); }
+    let vis=true; new IntersectionObserver(es=>{ vis=es[0].isIntersecting; }).observe(path.closest('header')||path);
+    function frame(t){ if(vis) place(0.5-0.5*Math.cos(t/2600)); requestAnimationFrame(frame); }
     requestAnimationFrame(frame);
   })();
 })();
