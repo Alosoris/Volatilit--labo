@@ -1118,8 +1118,8 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .site-foot .ft-grid .ft-star,.ft-star{stroke:none!important}
 
 /* laboratoire de volatilité */
-.c-vprice{height:300px}.c-vsig{height:250px}.c-vrisk{height:240px}
-@media (min-width:1280px){.c-vprice{height:360px}.c-vsig{height:290px}.c-vrisk{height:270px}}
+.c-vprice{height:480px}.c-vsig{height:250px}.c-vrisk{height:240px}
+@media (min-width:1280px){.c-vprice{height:560px}.c-vsig{height:290px}.c-vrisk{height:270px}}
 .v-num{font-family:var(--f-mono);font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums}
 #vPool button{font-size:.84rem}
 .f-leg{font-size:.8rem;line-height:1.55;color:var(--muted);margin:-.3rem 0 1.15rem;padding-left:.15rem}
@@ -1559,26 +1559,20 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
         </section>
 
         <section class="panel chart-card">
-          <h3>Le prix et la plage proposée</h3>
-          <p class="sub">Clôtures journalières, avec le plus haut et le plus bas de chaque jour. La zone grisée est la fenêtre de calcul ; la bande rose, à droite, est la plage proposée pour l'horizon choisi.</p>
+          <h3>Le prix, la plage proposée et la volatilité</h3>
+          <p class="sub">En haut : les clôtures journalières, avec le plus haut et le plus bas de chaque jour. La zone grisée est la fenêtre de calcul ; la bande rose, à droite, est la plage proposée pour l'horizon choisi. En bas, sur le même axe du temps : la volatilité annualisée de chaque estimateur, calculée sur la fenêtre qui se termine ce jour-là (l'estimateur choisi est en trait épais). En survolant, on lit le prix et la volatilité du même jour.</p>
           <div class="legend">
             <span><i style="background:var(--accent)"></i>Clôture</span>
             <span><i style="background:var(--hold)"></i>Plus haut / plus bas</span>
-            <span><i style="background:var(--accent)"></i>Plage proposée</span>
+            <span><i style="background:var(--accent);opacity:.45"></i>Plage proposée</span>
           </div>
-          <canvas id="vcPrice" class="c-vprice" aria-label="Prix de la pool et plage proposée"></canvas>
-        </section>
-
-        <section class="panel chart-card">
-          <h3>La volatilité au fil du temps</h3>
-          <p class="sub">Chaque point est la volatilité annualisée calculée sur la fenêtre qui se termine ce jour-là (ou l'EWMA de ce jour). L'estimateur choisi pour la plage est en trait épais. En survolant ce graphique, le point rose suit le même jour sur la courbe du prix et sur le backtest.</p>
           <div class="legend">
             <span><i style="background:var(--hold)"></i>Close-to-close</span>
             <span><i style="background:var(--accent)"></i>Parkinson</span>
             <span><i style="background:var(--v2)"></i>Garman-Klass</span>
             <span><i style="background:var(--ewm)"></i>EWMA</span>
           </div>
-          <canvas id="vcSig" class="c-vsig" aria-label="Volatilité annualisée au fil du temps"></canvas>
+          <canvas id="vcPrice" class="c-vprice" aria-label="Prix de la pool, plage proposée et volatilité"></canvas>
           <p class="hint v-warn" id="vSigNote"></p>
         </section>
 
@@ -2123,9 +2117,9 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     const e=pts[pts.length-1]; dot(ctx,e[0],e[1],10,hexA(A,.18)); dot(ctx,e[0],e[1],4.5,A,col('--surface'));
   }
   function dot(ctx,x,y,r,fill,stroke){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); if(fill){ctx.fillStyle=fill;ctx.fill();} if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();} }
-  function tip(ctx,x,y,w,h,rows){
+  function tip(ctx,x,y,w,h,rows,minY){
     ctx.font='500 11.5px '+col('--f-body'); const bw=Math.max(...rows.map(r=>ctx.measureText(r[0]).width))+40, bh=rows.length*19+12;
-    let bx=x+14; if(bx+bw>w-6) bx=x-14-bw; const by=Math.max(6,Math.min(y-bh/2,h-bh-6));
+    let bx=x+14; if(bx+bw>w-6) bx=x-14-bw; const by=Math.max(minY||6,Math.min(y-bh/2,h-bh-6));
     ctx.save(); ctx.shadowColor='rgba(0,0,0,.14)'; ctx.shadowBlur=16; ctx.shadowOffsetY=4; ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,12); ctx.fillStyle=col('--bg'); ctx.fill(); ctx.restore();
     ctx.beginPath(); ctx.roundRect(bx+.5,by+.5,bw-1,bh-1,12); ctx.strokeStyle=col('--line'); ctx.lineWidth=1; ctx.stroke();
     rows.forEach((r,i)=>{ const cy=by+12+i*19+5; if(i>0&&r[1]){ ctx.beginPath(); ctx.arc(bx+13,cy,3.5,0,Math.PI*2); ctx.fillStyle=r[1]; ctx.fill(); }
@@ -2136,35 +2130,48 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   function cross(ctx,F,h){ if(hovI==null) return null; const i=hovI, x=F.X(i); line(ctx,[[x,PAD.t],[x,h-PAD.b]],hexA(col('--accent'),.55),1); return {i,x}; }
 
   let M=null, hovI=null, hovRisk=null, hovCal=null, inv={};
+  // prix (en haut) et volatilité (en bas) dans un même graphique, sur le même axe du temps
   function drawPrice(){
     const c=$('vcPrice'), {ctx,w,h}=prep(c), s=M.s, n=s.n, R=M.rg, {ext,xd}=xdom();
+    const split=Math.round((h-PAD.t-PAD.b)*0.62)+PAD.t, gap=26, vTop=split+gap;
     const pa=R.P0/R.k, pb=R.P0*R.k;
     let lo=Math.min(pa,...s.l), hi=Math.max(pb,...s.h); const pd=(hi-lo)*.06; lo=Math.max(0,lo-pd); hi+=pd;
-    const F=box(ctx,w,h,PAD,xd,[lo,hi],fpx,'prix ('+D[S.pool].quote+')'); inv.t=F.inv;
+    // panneau du prix
+    const F=box(ctx,w,split,{l:PAD.l,r:PAD.r,t:PAD.t,b:0},xd,[lo,hi],fpx,'prix ('+D[S.pool].quote+')'); inv.t=F.inv;
+    // panneau de la volatilité
+    let mx=0; EST.forEach(e=>M[e.k].forEach(v=>{ if(isFinite(v)) mx=Math.max(mx,v*M.sq); }));
+    const V=box(ctx,w,h,{l:PAD.l,r:PAD.r,t:vTop,b:PAD.b},xd,[0,mx*1.1||1],v=>f(v*100,0)+' %','');
+    ctx.font='11px '+col('--f-mono'); ctx.fillStyle=col('--muted'); ctx.textAlign='left'; ctx.fillText('σ annualisée',4,vTop-8);
     dateTicks(ctx,F,s,w,h,PAD);
+    line(ctx,[[PAD.l,split+gap/2],[w-PAD.r,split+gap/2]],col('--line'),1);
+    // fenêtre de calcul
     ctx.fillStyle=hexA(col('--hold'),.10); ctx.fillRect(F.X(n-M.w),PAD.t,F.X(n-1)-F.X(n-M.w),h-PAD.t-PAD.b);
     ctx.font='600 11px '+col('--f-body'); ctx.fillStyle=col('--muted'); ctx.textAlign='left'; ctx.fillText('fenêtre : '+M.w+' bougies',F.X(n-M.w)+5,PAD.t+12);
+    // plage proposée
     const x0=F.X(n-1), x1=F.X(n-1+ext);
     ctx.fillStyle=hexA(col('--accent'),.16); ctx.fillRect(x0,F.Y(pb),x1-x0,F.Y(pa)-F.Y(pb));
     line(ctx,[[x0,F.Y(pb)],[x1,F.Y(pb)]],col('--accent'),1.4,[4,3]); line(ctx,[[x0,F.Y(pa)],[x1,F.Y(pa)]],col('--accent'),1.4,[4,3]);
     ctx.font='600 11px '+col('--f-body'); ctx.fillStyle=col('--accent'); ctx.textAlign='right';
     ctx.fillText(fpx(pb),x1-3,F.Y(pb)-5); ctx.fillText(fpx(pa),x1-3,F.Y(pa)+14);
+    // bougies et courbe du prix
     const bw=Math.max(1,Math.min(3,(F.X(1)-F.X(0))*.55)); ctx.strokeStyle=hexA(col('--hold'),.45); ctx.lineWidth=bw;
     ctx.beginPath(); for(let i=0;i<n;i++){ const x=F.X(i); ctx.moveTo(x,F.Y(s.h[i])); ctx.lineTo(x,F.Y(s.l[i])); } ctx.stroke();
-    priceArea(ctx,F,s.c,h);
-    const cr=cross(ctx,F,h); if(cr){ const i=cr.i; dot(ctx,cr.x,F.Y(s.c[i]),5,col('--ink'),col('--surface'));
-      tip(ctx,cr.x,F.Y(s.c[i]),w-PAD.r,h,[[dLong(s.dates[i])],['O  '+fpx(s.o[i])],['H  '+fpx(s.h[i])],['L  '+fpx(s.l[i])],['C  '+fpx(s.c[i])],['ln(H/L)  '+pc(Math.log(s.h[i]/s.l[i]),2)]]); }
-  }
-  function drawSig(){
-    const c=$('vcSig'), {ctx,w,h}=prep(c), s=M.s, n=s.n, {xd}=xdom();
-    let mx=0; EST.forEach(e=>M[e.k].forEach(v=>{ if(isFinite(v)) mx=Math.max(mx,v*M.sq); }));
-    const F=box(ctx,w,h,PAD,xd,[0,mx*1.08||1],v=>f(v*100,0)+' %','σ annualisée');
-    dateTicks(ctx,F,s,w,h,PAD);
-    EST.forEach(e=>{ if(e.k!==S.est) line(ctx,M[e.k].map((v,i)=>[F.X(i),F.Y(v*M.sq)]),hexA(col(e.c),.8),1.3); });
-    const sel=EST.find(e=>e.k===S.est); line(ctx,M[sel.k].map((v,i)=>[F.X(i),F.Y(v*M.sq)]),col(sel.c),2.8);
-    const cr=cross(ctx,F,h); if(cr){ const i=cr.i, rows=[[dLong(s.dates[i])]]; let yy=null;
-      EST.forEach(e=>{ const v=M[e.k][i]*M.sq; if(isFinite(v)){ dot(ctx,cr.x,F.Y(v),3.2,col(e.c)); if(e.k===S.est) yy=F.Y(v); } rows.push([e.n+'  '+(isFinite(v)?pc(v):'—'),col(e.c)]); });
-      tip(ctx,cr.x,yy==null?h/2:yy,w-PAD.r,h,rows); }
+    priceArea(ctx,F,s.c,split);
+    // courbes de volatilité
+    EST.forEach(e=>{ if(e.k!==S.est) line(ctx,M[e.k].map((v,i)=>[V.X(i),V.Y(v*M.sq)]),hexA(col(e.c),.8),1.3); });
+    const sel=EST.find(e=>e.k===S.est), pts=M[sel.k].map((v,i)=>[V.X(i),V.Y(v*M.sq)]);
+    const fv=pts.filter(p=>isFinite(p[1]));
+    if(fv.length>1){ const g=ctx.createLinearGradient(0,vTop,0,h-PAD.b); g.addColorStop(0,hexA(col(sel.c),.22)); g.addColorStop(1,hexA(col(sel.c),0));
+      ctx.beginPath(); ctx.moveTo(fv[0][0],h-PAD.b); fv.forEach(p=>ctx.lineTo(p[0],p[1])); ctx.lineTo(fv[fv.length-1][0],h-PAD.b); ctx.closePath(); ctx.fillStyle=g; ctx.fill(); }
+    line(ctx,pts,col(sel.c),2.4);
+    const vl=M[sel.k][n-1]*M.sq; if(isFinite(vl)){ ctx.font='600 11px '+col('--f-body'); ctx.fillStyle=col(sel.c); ctx.textAlign='left'; ctx.fillText(pc(vl),x0+6,V.Y(vl)+4); }
+    // survol : même jour dans les deux panneaux
+    const cr=cross(ctx,F,h); if(cr){ const i=cr.i;
+      dot(ctx,cr.x,F.Y(s.c[i]),5,col('--ink'),col('--surface'));
+      tip(ctx,cr.x,F.Y(s.c[i]),w-PAD.r,split,[[dLong(s.dates[i])],['O  '+fpx(s.o[i])],['H  '+fpx(s.h[i])],['L  '+fpx(s.l[i])],['C  '+fpx(s.c[i])],['ln(H/L)  '+pc(Math.log(s.h[i]/s.l[i]),2)]]);
+      const rows=[['σ annualisée']]; let yy=null;
+      EST.forEach(e=>{ const v=M[e.k][i]*M.sq; if(isFinite(v)){ dot(ctx,cr.x,V.Y(v),3.2,col(e.c)); if(e.k===S.est) yy=V.Y(v); } rows.push([e.n+'  '+(isFinite(v)?pc(v):'—'),col(e.c)]); });
+      tip(ctx,cr.x,yy==null?(vTop+h)/2:yy,w-PAD.r,h,rows,vTop-6); }
   }
   function drawBt(){
     const c=$('vcBt'), {ctx,w,h}=prep(c), s=M.s, n=s.n, {xd}=xdom(), B=M.bt.boxes;
@@ -2282,7 +2289,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     if(hovI!=null && hovI>s.n-1) hovI=null;
     syncButtons(); texts(); draw();
   }
-  function draw(){ if(!M) return; drawPrice(); drawSig(); drawBt(); drawRisk(); drawCal(); }
+  function draw(){ if(!M) return; drawPrice(); drawBt(); drawRisk(); drawCal(); }
   let raf; const redraw=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); };
 
   // ---------- commandes ----------
@@ -2295,7 +2302,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   $('vLam').addEventListener('input',e=>{ S.lam=+e.target.value; update(); });
   $('vP').addEventListener('input',e=>{ S.p=+e.target.value/100; update(); });
   // survol synchronisé : prix, volatilité et backtest partagent le jour survolé
-  ['vcPrice','vcSig','vcBt'].forEach(id=>{ const c=$(id);
+  ['vcPrice','vcBt'].forEach(id=>{ const c=$(id);
     c.addEventListener('pointermove',e=>{ if(!inv.t) return; const r=c.getBoundingClientRect(); const i=Math.round(inv.t(e.clientX-r.left)); hovI=(i>=0&&i<=M.s.n-1)?i:null; redraw(); });
     c.addEventListener('pointerleave',()=>{ hovI=null; redraw(); }); });
   $('vcRisk').addEventListener('pointermove',e=>{ if(!inv.risk) return; const r=$('vcRisk').getBoundingClientRect(); hovRisk=inv.risk(e.clientX-r.left); redraw(); });
