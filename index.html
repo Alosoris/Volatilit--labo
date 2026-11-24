@@ -1148,6 +1148,14 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .stat.v-sel{box-shadow:inset 0 0 0 2px var(--accent)}
 .stat .v#vsE{color:var(--accent)}
 :root{--ewm:#6b3fe0}:root[data-theme=dark]{--ewm:#a98bff}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ewm:#a98bff}}
+.v-switch{display:flex;align-items:center;gap:12px;margin:.6rem 0 .4rem;cursor:pointer;font-size:.9rem;line-height:1.4}
+.v-switch input{position:absolute;opacity:0;width:1px;height:1px}
+.v-sw{flex:none;position:relative;width:46px;height:26px;border-radius:99px;background:rgba(127,127,127,.28);transition:background .2s}
+.v-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .2s}
+.v-switch input:checked+.v-sw{background:var(--accent)}
+.v-switch input:checked+.v-sw::after{transform:translateX(20px)}
+.v-switch input:focus-visible+.v-sw{outline:2px solid var(--accent);outline-offset:2px}
+.bt-tab.bt-5 .bt-r{grid-template-columns:minmax(110px,1fr) minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.2fr) minmax(0,1fr)}
 .bt-tab{border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:.4rem 0 .2rem;background:var(--surface)}
 .bt-r{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:start;padding:13px 16px;border-top:1px solid var(--line);position:relative}
 .bt-r:first-child{border-top:0}
@@ -1585,6 +1593,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
         <section class="panel chart-card" id="vBt">
           <h3>Backtest : la plage aurait-elle tenu ?</h3>
           <p class="sub">Pour vérifier le modèle, on se replace à chaque jour passé : on pose la plage avec la seule volatilité connue ce jour-là (même estimateur, fenêtre, λ, horizon et risque p), puis on regarde dans les bougies suivantes si le prix en est sorti avant la fin de l'horizon. Si le modèle est juste, la part de plages quittées doit être proche du risque visé p.</p>
+          <label class="v-switch"><input type="checkbox" id="vReb"><span class="v-sw" aria-hidden="true"></span><span><b>Réajuster dès la sortie</b> : au lieu d'attendre la fin de l'horizon T, une nouvelle plage est posée dès que le prix sort de la précédente.</span></label>
           <div class="tw" id="vBtStats"></div>
           <p class="hint" id="vBtNote"></p>
           <h3 class="v-h4">Les plages successives sur le prix</h3>
@@ -2004,7 +2013,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   const fpx = v => { const a=Math.abs(v); return a>=1000?f(v,0):a>=100?f(v,1):a>=1?f(v,2):f(v,4); };
   const GKC = 2*Math.LN2-1, LN_TICK = Math.log(1.0001);
   const EST = [ {k:'cc',n:'Close-to-close',c:'--hold'}, {k:'pk',n:'Parkinson',c:'--accent'}, {k:'gk',n:'Garman-Klass',c:'--v2'}, {k:'ew',n:'EWMA',c:'--ewm'} ];
-  const S = { pool:0, src:'on', win:90, est:'cc', lam:0.94, hz:7, p:0.20 };
+  const S = { pool:0, src:'on', win:90, est:'cc', lam:0.94, hz:7, p:0.20, reb:false };
   const PCAL = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60];
   const PAD = {l:62,r:14,t:18,b:30};
 
@@ -2083,6 +2092,16 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
       let exitDay=-1, inDays=0; for(let j=1;j<=h;j++){ const cj=s.c[t+j]; if(cj<=up&&cj>=dn) inDays++; if(exitDay<0&&(s.h[t+j]>up||s.l[t+j]<dn)) exitDay=t+j; }
       boxes.push({t,t1:t+h,up,dn,sig:sd*M.sq,exitDay,inDays}); }
     boxes.reverse();
+    // mode « réajuster dès la sortie » : une seule suite de plages dans le temps ; dès que le prix sort,
+    // une nouvelle plage est posée à la clôture du jour de sortie (sinon, à la fin de l'horizon T)
+    const seq=k=>{ const z=zFor(S.p), arr=M[k], bx=[]; let t=arr.findIndex(v=>isFinite(v)), days=0, inDays=0, exits=0, wsum=0;
+      while(t>=0 && t<n-1){ const sd=arr[t]; if(!isFinite(sd)){ t++; continue; }
+        const kk=Math.exp(z*sd*sT), up=s.c[t]*kk, dn=s.c[t]/kk, end=Math.min(t+h,n-1); wsum+=kk-1;
+        let exitDay=-1, ins=0; for(let j=t+1;j<=end;j++){ if(s.c[j]<=up&&s.c[j]>=dn) ins++; if(s.h[j]>up||s.l[j]<dn){ exitDay=j; break; } }
+        const last=exitDay>=0?exitDay:end; days+=last-t; inDays+=ins; if(exitDay>=0) exits++;
+        bx.push({t,t1:last,up,dn,sig:sd*M.sq,exitDay,inDays:ins}); t=last; }
+      const nb=bx.length; return {nb,out:exits,r:nb?exits/nb:NaN,width:nb?wsum/nb:NaN,inside:days?inDays/days:NaN,perMonth:days?nb/days*30:NaN,len:nb?days/nb:NaN,boxes:bx}; };
+    if(S.reb){ EST.forEach(e=>{ cur[e.k]=seq(e.k); }); return {h,cur,cal,boxes:cur[S.est].boxes}; }
     return {h,cur,cal,boxes};
   }
 
@@ -2251,15 +2270,16 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     const bt=M.bt, hTxt=bt.h+(bt.h>1?' bougies':' bougie');
     const unit=bt.h>1?' bougies':' bougie';
     const mxR=Math.max(0.6,...EST.map(e=>bt.cur[e.k].r).filter(isFinite))*1.05;
-    $('vBtStats').innerHTML='<div class="bt-tab" role="table"><div class="bt-r bt-head" role="row"><span role="columnheader">Estimateur</span><span role="columnheader">Plages quittées <em>(visé : '+pc(S.p,0)+')</em></span><span role="columnheader">Largeur moyenne</span><span role="columnheader">Temps dans la plage</span></div>'+EST.map(e=>{
+    $('vBtStats').innerHTML='<div class="bt-tab'+(S.reb?' bt-5':'')+'" role="table"><div class="bt-r bt-head" role="row"><span role="columnheader">Estimateur</span><span role="columnheader">'+(S.reb?'Plages quittées avant T':'Plages quittées')+' <em>(visé : '+pc(S.p,0)+')</em></span><span role="columnheader">Largeur moyenne</span><span role="columnheader">Temps dans la plage</span>'+(S.reb?'<span role="columnheader">Réajustements</span>':'')+'</div>'+EST.map(e=>{
       const c=bt.cur[e.k], d=c.r-S.p, st=!isFinite(d)?'':Math.abs(d)<=0.05?'ok':d>0?'hi':'lo', tag={ok:'proche du risque visé',hi:'plus que prévu',lo:'moins que prévu'}[st]||'';
       return '<div class="bt-r'+(e.k===S.est?' sel':'')+'" role="row"><span class="bt-n" role="cell"><i class="v-dot" style="background:var('+e.c+')"></i>'+e.n+'</span>'
         +'<span role="cell"><b class="bt-v bt-'+st+'">'+pc(c.r)+'</b><span class="bt-bar"><i style="width:'+(isFinite(c.r)?Math.min(100,c.r/mxR*100):0)+'%"></i><u style="left:'+(S.p/mxR*100)+'%" title="risque visé"></u></span><small>'+(c.nb?c.out+' sur '+c.nb+' plages · '+tag:'aucune plage testable : fenêtre trop longue pour cet historique')+'</small></span>'
         +'<span role="cell"><b class="bt-v">± '+f(c.width*100,1)+' %</b><small>autour du prix de départ</small></span>'
-        +'<span role="cell"><b class="bt-v">'+pc(c.inside)+'</b><span class="bt-bar bt-in"><i style="width:'+(isFinite(c.inside)?c.inside*100:0)+'%"></i></span><small>des clôtures dans la plage</small></span></div>'; }).join('')+'</div>';
+        +'<span role="cell"><b class="bt-v">'+pc(c.inside)+'</b><span class="bt-bar bt-in"><i style="width:'+(isFinite(c.inside)?c.inside*100:0)+'%"></i></span><small>des clôtures dans la plage</small></span>'+(S.reb?'<span role="cell"><b class="bt-v">'+f(c.perMonth,1)+' / mois</b><small>'+c.nb+' plages · durée moyenne '+f(c.len,1)+' j</small></span>':'')+'</div>'; }).join('')+'</div>';
     $('vBtNote').textContent='Risque visé p = '+pc(S.p,0)+' · horizon '+HZ[S.hz]+' ('+hTxt+') · fenêtre '+M.w+' bougies. Chaque plage est posée à la clôture d\'un jour, avec la volatilité connue ce jour-là, puis comparée aux plus hauts et plus bas des '+hTxt+' suivantes. « Temps dans la plage » : part des clôtures des '+hTxt+' suivantes qui tombent dans la plage, y compris après une sortie si le prix revient (la position touche alors à nouveau des frais).';
+    if(S.reb) $('vBtNote').textContent='Mode « réajuster dès la sortie » · risque visé p = '+pc(S.p,0)+' · horizon '+HZ[S.hz]+' ('+hTxt+') · fenêtre '+M.w+' bougies. On suit une seule position dans le temps : chaque plage est posée avec la volatilité connue ce jour-là ; dès qu\'un plus haut ou un plus bas la franchit, une nouvelle plage est posée à la clôture de ce jour, sinon à la fin de l\'horizon. « Temps dans la plage » : part des clôtures de toute la période qui tombent dans la plage en cours. « Réajustements » : nombre de plages posées par mois (chaque réajustement coûte du gas).';
     const nb=bt.boxes.length, ok=bt.boxes.filter(b=>b.exitDay<0).length;
-    $('vBtBoxes').textContent=nb?('Plages successives de l\'estimateur '+EST.find(e=>e.k===S.est).n+' : '+ok+' tenues (vert) et '+(nb-ok)+' quittées (rouge) sur '+nb+'.'):'';
+    $('vBtBoxes').textContent=nb?('Plages successives de l\'estimateur '+EST.find(e=>e.k===S.est).n+' : '+ok+' tenues jusqu\'à l\'horizon (vert) et '+(nb-ok)+' quittées (rouge) sur '+nb+(S.reb?' ; après chaque sortie, la plage suivante commence le jour même.':'.')):'';
     const en=EST.find(e=>e.k===S.est).n, za=PhiInv(1-S.p/4);
     const row=(l,e,r)=>`<div class="f-row"><span>${l}</span><span class="eq">${e} = <b>${r}</b></span></div>`;
     $('vFormulas').innerHTML=[
@@ -2300,6 +2320,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   $('vEst').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S.est=b.dataset.e; update(); });
   $('vHz').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S.hz=+b.dataset.h; update(); });
   $('vLam').addEventListener('input',e=>{ S.lam=+e.target.value; update(); });
+  $('vReb').addEventListener('change',e=>{ S.reb=e.target.checked; update(); });
   $('vP').addEventListener('input',e=>{ S.p=+e.target.value/100; update(); });
   // survol synchronisé : prix, volatilité et backtest partagent le jour survolé
   ['vcPrice','vcBt'].forEach(id=>{ const c=$(id);
