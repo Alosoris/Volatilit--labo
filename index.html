@@ -1147,10 +1147,23 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .chart-card .v-h4{font-size:1rem;margin:.9rem 0 0}
 .stat.v-sel{box-shadow:inset 0 0 0 2px var(--accent)}
 .stat .v#vsE{color:var(--accent)}
-table.v-bt th{font-size:.8rem;line-height:1.3}
-table.v-bt td b{display:block;font-family:var(--f-mono);font-weight:500;font-variant-numeric:tabular-nums}
-table.v-bt td small{display:block;font-size:.74rem;color:var(--muted);line-height:1.3}
-table.v-bt tr.v-sel td{background:var(--accent-soft)}
+:root{--ewm:#6b3fe0}:root[data-theme=dark]{--ewm:#a98bff}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ewm:#a98bff}}
+.bt-tab{border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:.4rem 0 .2rem;background:var(--surface)}
+.bt-r{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:start;padding:13px 16px;border-top:1px solid var(--line);position:relative}
+.bt-r:first-child{border-top:0}
+.bt-head{padding:10px 16px;font-size:.76rem;color:var(--muted);background:rgba(127,127,127,.06)}
+.bt-head em{font-style:normal;color:var(--accent)}
+.bt-r.sel{background:var(--accent-soft)}
+.bt-r.sel::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+.bt-n{font-weight:600;font-size:.92rem;padding-top:2px}
+.bt-v{display:block;font-family:var(--f-mono);font-weight:500;font-size:1.12rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.bt-v.bt-ok{color:var(--good)}.bt-v.bt-hi{color:var(--bad)}.bt-v.bt-lo{color:var(--v2)}
+.bt-r small{display:block;font-size:.74rem;color:var(--muted);line-height:1.35;margin-top:3px}
+.bt-bar{position:relative;display:block;height:6px;border-radius:99px;background:rgba(127,127,127,.15);margin-top:7px}
+.bt-bar i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.bt-bar.bt-in i{background:var(--good)}
+.bt-bar u{position:absolute;top:-4px;width:2px;height:14px;border-radius:2px;background:var(--ink);transform:translateX(-1px)}
+@media (max-width:640px){.bt-r{grid-template-columns:1fr 1fr}.bt-head{display:none}.bt-n{grid-column:1/-1}}
 .v-warn:empty{display:none}.v-warn{color:var(--accent)}
 .v-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 </style>
@@ -1549,7 +1562,7 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
           <h3>Le prix et la plage proposée</h3>
           <p class="sub">Clôtures journalières, avec le plus haut et le plus bas de chaque jour. La zone grisée est la fenêtre de calcul ; la bande rose, à droite, est la plage proposée pour l'horizon choisi.</p>
           <div class="legend">
-            <span><i style="background:var(--ink)"></i>Clôture</span>
+            <span><i style="background:var(--accent)"></i>Clôture</span>
             <span><i style="background:var(--hold)"></i>Plus haut / plus bas</span>
             <span><i style="background:var(--accent)"></i>Plage proposée</span>
           </div>
@@ -1563,7 +1576,7 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
             <span><i style="background:var(--hold)"></i>Close-to-close</span>
             <span><i style="background:var(--accent)"></i>Parkinson</span>
             <span><i style="background:var(--v2)"></i>Garman-Klass</span>
-            <span><i style="background:var(--plum)"></i>EWMA</span>
+            <span><i style="background:var(--ewm)"></i>EWMA</span>
           </div>
           <canvas id="vcSig" class="c-vsig" aria-label="Volatilité annualisée au fil du temps"></canvas>
           <p class="hint v-warn" id="vSigNote"></p>
@@ -1584,7 +1597,7 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
           <div class="legend">
             <span><i style="background:var(--good)"></i>Plage tenue jusqu'à l'horizon</span>
             <span><i style="background:var(--bad)"></i>Plage quittée (point : jour de sortie)</span>
-            <span><i style="background:var(--ink)"></i>Clôture</span>
+            <span><i style="background:var(--accent)"></i>Clôture</span>
           </div>
           <canvas id="vcBt" class="c-vbt" aria-label="Plages successives et leur résultat"></canvas>
           <p class="hint" id="vBtBoxes"></p>
@@ -1996,7 +2009,7 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
   const dShort = d => MOIS[d.getUTCMonth()]+' '+String(d.getUTCFullYear()).slice(2);
   const fpx = v => { const a=Math.abs(v); return a>=1000?f(v,0):a>=100?f(v,1):a>=1?f(v,2):f(v,4); };
   const GKC = 2*Math.LN2-1, LN_TICK = Math.log(1.0001);
-  const EST = [ {k:'cc',n:'Close-to-close',c:'--hold'}, {k:'pk',n:'Parkinson',c:'--accent'}, {k:'gk',n:'Garman-Klass',c:'--v2'}, {k:'ew',n:'EWMA',c:'--plum'} ];
+  const EST = [ {k:'cc',n:'Close-to-close',c:'--hold'}, {k:'pk',n:'Parkinson',c:'--accent'}, {k:'gk',n:'Garman-Klass',c:'--v2'}, {k:'ew',n:'EWMA',c:'--ewm'} ];
   const S = { pool:0, src:'on', win:90, est:'cc', lam:0.94, hz:7, p:0.20 };
   const PCAL = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60];
   const PAD = {l:62,r:14,t:18,b:30};
@@ -2101,6 +2114,14 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
   }
   function line(ctx,pts,color,width,dash){ ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash(dash||[]); ctx.beginPath(); let on=false;
     pts.forEach(p=>{ if(!isFinite(p[1])){ on=false; return; } if(on) ctx.lineTo(p[0],p[1]); else { ctx.moveTo(p[0],p[1]); on=true; } }); ctx.stroke(); ctx.setLineDash([]); }
+  // courbe du prix en rose, avec un dégradé qui part de la courbe et s'efface vers le bas
+  function priceArea(ctx,F,c,h){
+    const pts=c.map((v,i)=>[F.X(i),F.Y(v)]), top=Math.min(...pts.map(p=>p[1])), base=h-PAD.b, A=col('--accent');
+    const g=ctx.createLinearGradient(0,top,0,base); g.addColorStop(0,hexA(A,.30)); g.addColorStop(.55,hexA(A,.10)); g.addColorStop(1,hexA(A,0));
+    ctx.beginPath(); ctx.moveTo(pts[0][0],base); pts.forEach(p=>ctx.lineTo(p[0],p[1])); ctx.lineTo(pts[pts.length-1][0],base); ctx.closePath(); ctx.fillStyle=g; ctx.fill();
+    ctx.lineJoin='round'; line(ctx,pts,A,2); ctx.lineJoin='miter';
+    const e=pts[pts.length-1]; dot(ctx,e[0],e[1],10,hexA(A,.18)); dot(ctx,e[0],e[1],4.5,A,col('--surface'));
+  }
   function dot(ctx,x,y,r,fill,stroke){ ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); if(fill){ctx.fillStyle=fill;ctx.fill();} if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();} }
   function tip(ctx,x,y,w,h,rows){
     ctx.font='500 11.5px '+col('--f-body'); const bw=Math.max(...rows.map(r=>ctx.measureText(r[0]).width))+40, bh=rows.length*19+12;
@@ -2128,11 +2149,10 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
     line(ctx,[[x0,F.Y(pb)],[x1,F.Y(pb)]],col('--accent'),1.4,[4,3]); line(ctx,[[x0,F.Y(pa)],[x1,F.Y(pa)]],col('--accent'),1.4,[4,3]);
     ctx.font='600 11px '+col('--f-body'); ctx.fillStyle=col('--accent'); ctx.textAlign='right';
     ctx.fillText(fpx(pb),x1-3,F.Y(pb)-5); ctx.fillText(fpx(pa),x1-3,F.Y(pa)+14);
-    const bw=Math.max(1,Math.min(3,(F.X(1)-F.X(0))*.55)); ctx.strokeStyle=hexA(col('--hold'),.6); ctx.lineWidth=bw;
+    const bw=Math.max(1,Math.min(3,(F.X(1)-F.X(0))*.55)); ctx.strokeStyle=hexA(col('--hold'),.45); ctx.lineWidth=bw;
     ctx.beginPath(); for(let i=0;i<n;i++){ const x=F.X(i); ctx.moveTo(x,F.Y(s.h[i])); ctx.lineTo(x,F.Y(s.l[i])); } ctx.stroke();
-    line(ctx,s.c.map((v,i)=>[F.X(i),F.Y(v)]),col('--ink'),1.6);
-    dot(ctx,x0,F.Y(R.P0),4,col('--ink'),col('--surface'));
-    const cr=cross(ctx,F,h); if(cr){ const i=cr.i; dot(ctx,cr.x,F.Y(s.c[i]),5,col('--accent'),col('--surface'));
+    priceArea(ctx,F,s.c,h);
+    const cr=cross(ctx,F,h); if(cr){ const i=cr.i; dot(ctx,cr.x,F.Y(s.c[i]),5,col('--ink'),col('--surface'));
       tip(ctx,cr.x,F.Y(s.c[i]),w-PAD.r,h,[[dLong(s.dates[i])],['O  '+fpx(s.o[i])],['H  '+fpx(s.h[i])],['L  '+fpx(s.l[i])],['C  '+fpx(s.c[i])],['ln(H/L)  '+pc(Math.log(s.h[i]/s.l[i]),2)]]); }
   }
   function drawSig(){
@@ -2155,8 +2175,8 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
     B.forEach(b=>{ const cl=b.exitDay<0?G:Rd, x0=F.X(b.t), x1=F.X(b.t1), y0=F.Y(b.up), y1=F.Y(b.dn);
       ctx.fillStyle=hexA(cl,.16); ctx.fillRect(x0,y0,x1-x0,y1-y0); ctx.strokeStyle=hexA(cl,.75); ctx.lineWidth=1; ctx.strokeRect(x0+.5,y0+.5,Math.max(0,x1-x0-1),y1-y0-1);
       if(b.exitDay>=0){ const xe=F.X(b.exitDay); dot(ctx,xe,F.Y(s.h[b.exitDay]>b.up?b.up:b.dn),2.6,Rd); } });
-    line(ctx,s.c.map((v,i)=>[F.X(i),F.Y(v)]),col('--ink'),1.3);
-    const cr=cross(ctx,F,h); if(cr){ const i=cr.i; dot(ctx,cr.x,F.Y(s.c[i]),4,col('--accent'),col('--surface'));
+    priceArea(ctx,F,s.c,h);
+    const cr=cross(ctx,F,h); if(cr){ const i=cr.i; dot(ctx,cr.x,F.Y(s.c[i]),4.5,col('--ink'),col('--surface'));
       const b=B.find(b=>i>=b.t&&i<b.t1)||B.find(b=>i===b.t1);
       const rows=[[dLong(s.dates[i])]];
       if(b){ rows.push(['plage posée le '+dLong(s.dates[b.t])]); rows.push(['σ = '+pc(b.sig)+' · ['+fpx(b.dn)+' ; '+fpx(b.up)+']']);
@@ -2223,9 +2243,14 @@ table.v-bt tr.v-sel td{background:var(--accent-soft)}
     // backtest
     const bt=M.bt, hTxt=bt.h+(bt.h>1?' bougies':' bougie');
     const unit=bt.h>1?' bougies':' bougie';
-    $('vBtStats').innerHTML='<table class="alice v-bt"><thead><tr><th>Estimateur</th><th>Plages quittées</th><th>Largeur moyenne</th><th>Temps dans la plage</th><th>Avant la sortie</th></tr></thead><tbody>'+EST.map(e=>{ const c=bt.cur[e.k], d=c.r-S.p, tag=!isFinite(d)?'':Math.abs(d)<=0.05?'proche de p':d>0?'plus que p':'moins que p';
-      return '<tr'+(e.k===S.est?' class="v-sel"':'')+'><td><i class="v-dot" style="background:var('+e.c+')"></i>'+e.n+'</td><td><b>'+pc(c.r)+'</b><small>'+(c.nb?c.out+' sur '+c.nb+' · '+tag:'aucune plage testable : fenêtre trop longue pour cet historique')+'</small></td><td><b>± '+f(c.width*100,1)+' %</b><small>borne haute</small></td><td><b>'+pc(c.inside)+'</b><small>des clôtures</small></td><td><b>'+(isFinite(c.before)?f(c.before,1):'—')+unit.replace(' bougies',' j').replace(' bougie',' j')+'</b><small>en moyenne, plages quittées</small></td></tr>'; }).join('')+'</tbody></table>';
-    $('vBtNote').textContent='Risque visé p = '+pc(S.p,0)+' · horizon '+HZ[S.hz]+' ('+hTxt+') · fenêtre '+M.w+' bougies. Chaque plage est posée à la clôture d\'un jour, avec la volatilité connue ce jour-là, puis comparée aux plus hauts et plus bas des '+hTxt+' suivantes. « Temps dans la plage » : part des clôtures des '+hTxt+' suivantes qui tombent dans la plage, y compris après une sortie si le prix revient (la position touche alors à nouveau des frais). « Avant la sortie » : nombre moyen de jours entiers passés dans la plage avant la première sortie.';
+    const mxR=Math.max(0.6,...EST.map(e=>bt.cur[e.k].r).filter(isFinite))*1.05;
+    $('vBtStats').innerHTML='<div class="bt-tab" role="table"><div class="bt-r bt-head" role="row"><span role="columnheader">Estimateur</span><span role="columnheader">Plages quittées <em>(visé : '+pc(S.p,0)+')</em></span><span role="columnheader">Largeur moyenne</span><span role="columnheader">Temps dans la plage</span></div>'+EST.map(e=>{
+      const c=bt.cur[e.k], d=c.r-S.p, st=!isFinite(d)?'':Math.abs(d)<=0.05?'ok':d>0?'hi':'lo', tag={ok:'proche du risque visé',hi:'plus que prévu',lo:'moins que prévu'}[st]||'';
+      return '<div class="bt-r'+(e.k===S.est?' sel':'')+'" role="row"><span class="bt-n" role="cell"><i class="v-dot" style="background:var('+e.c+')"></i>'+e.n+'</span>'
+        +'<span role="cell"><b class="bt-v bt-'+st+'">'+pc(c.r)+'</b><span class="bt-bar"><i style="width:'+(isFinite(c.r)?Math.min(100,c.r/mxR*100):0)+'%"></i><u style="left:'+(S.p/mxR*100)+'%" title="risque visé"></u></span><small>'+(c.nb?c.out+' sur '+c.nb+' plages · '+tag:'aucune plage testable : fenêtre trop longue pour cet historique')+'</small></span>'
+        +'<span role="cell"><b class="bt-v">± '+f(c.width*100,1)+' %</b><small>autour du prix de départ</small></span>'
+        +'<span role="cell"><b class="bt-v">'+pc(c.inside)+'</b><span class="bt-bar bt-in"><i style="width:'+(isFinite(c.inside)?c.inside*100:0)+'%"></i></span><small>des clôtures dans la plage</small></span></div>'; }).join('')+'</div>';
+    $('vBtNote').textContent='Risque visé p = '+pc(S.p,0)+' · horizon '+HZ[S.hz]+' ('+hTxt+') · fenêtre '+M.w+' bougies. Chaque plage est posée à la clôture d\'un jour, avec la volatilité connue ce jour-là, puis comparée aux plus hauts et plus bas des '+hTxt+' suivantes. « Temps dans la plage » : part des clôtures des '+hTxt+' suivantes qui tombent dans la plage, y compris après une sortie si le prix revient (la position touche alors à nouveau des frais).';
     const nb=bt.boxes.length, ok=bt.boxes.filter(b=>b.exitDay<0).length;
     $('vBtBoxes').textContent=nb?('Plages successives de l\'estimateur '+EST.find(e=>e.k===S.est).n+' : '+ok+' tenues (vert) et '+(nb-ok)+' quittées (rouge) sur '+nb+'.'):'';
     const en=EST.find(e=>e.k===S.est).n, za=PhiInv(1-S.p/4);
