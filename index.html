@@ -1156,6 +1156,13 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .v-switch input:checked+.v-sw::after{transform:translateX(20px)}
 .v-switch input:focus-visible+.v-sw{outline:2px solid var(--accent);outline-offset:2px}
 .bt-tab.bt-5 .bt-r{grid-template-columns:minmax(110px,1fr) minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.2fr) minmax(0,1fr)}
+.bt-v.bt-best{color:var(--accent)}
+.sc-panel{margin:1.2rem 0 1.4rem;display:flex;flex-direction:column;gap:14px}
+.sc-ctl{display:grid;grid-template-columns:1fr;gap:12px}
+.sc-ctl .ctl{margin:0}
+.bt-ml{display:none;font-style:normal;font-size:.7rem;color:var(--muted);margin-bottom:2px}
+@media (max-width:640px){.bt-tab.bt-5 .bt-r{grid-template-columns:1fr 1fr}.bt-ml{display:block}}
+@media (min-width:900px){.sc-ctl{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr)}}
 .bt-tab{border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:.4rem 0 .2rem;background:var(--surface)}
 .bt-r{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:start;padding:13px 16px;border-top:1px solid var(--line);position:relative}
 .bt-r:first-child{border-top:0}
@@ -1183,7 +1190,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     <h1>Mesurer la <em>volatilité</em> d'une pool.</h1>
     <p>Un cours interactif sur la volatilité, pensé pour les fournisseurs de liquidité des pools à liquidité concentrée (CLMM). On part du rendement d'un jour, on construit quatre façons de mesurer la volatilité, puis on en déduit la largeur d'une plage de prix. Le laboratoire applique tout cela aux vraies données de six pools. Ce site complète la <a href="https://dex-v3-presentation.vercel.app/" target="_blank" rel="noopener" style="color:inherit">présentation CLMM</a> ; le vocabulaire est rassemblé dans le lexique final.</p>
     <nav class="toc" aria-label="Sommaire">
-      <a href="#c1"><b>1</b>Mesurer une variation</a><a href="#c2"><b>2</b>La volatilité</a><a href="#c3"><b>3</b>Les estimateurs</a><a href="#c4"><b>4</b>Une paire sans dollar</a><a href="#c5"><b>5</b>De la volatilité à la plage</a><a href="#pools"><b>6</b>Les six pools</a><a href="#vlab"><b>7</b>Laboratoire : la volatilité</a><a href="#c8"><b>8</b>Les limites</a><a href="#lexique"><b>9</b>Lexique</a><a href="#sources"><b>10</b>Sources</a>
+      <a href="#c1"><b>1</b>Mesurer une variation</a><a href="#c2"><b>2</b>La volatilité</a><a href="#c3"><b>3</b>Les estimateurs</a><a href="#c4"><b>4</b>Une paire sans dollar</a><a href="#c5"><b>5</b>De la volatilité à la plage</a><a href="#pools"><b>6</b>Les six pools</a><a href="#vlab"><b>7</b>Laboratoire : la volatilité</a><a href="#c8"><b>8</b>Le score d'efficacité</a><a href="#c9"><b>9</b>Les limites</a><a href="#lexique"><b>10</b>Lexique</a><a href="#sources"><b>11</b>Sources</a>
     </nav>
     <svg class="hero-curve" viewBox="0 0 320 220" aria-hidden="true" focusable="false">
       <defs><linearGradient id="hcFade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".95"/></linearGradient></defs>
@@ -1199,7 +1206,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     </svg>
   </header>
   <div class="layout">
-    <nav class="side" aria-label="Sommaire"><div class="side-head"><span class="side-title">Sommaire</span><span class="prog-t"><b id="progN">0 %</b> parcouru</span><span class="prog-bar"><i id="progB"></i></span></div><a href="#c1"><b>1</b><span class="snum">1</span>Mesurer une variation</a><a href="#c2"><b>2</b><span class="snum">2</span>La volatilité</a><a href="#c3"><b>3</b><span class="snum">3</span>Les estimateurs</a><a href="#c4"><b>4</b><span class="snum">4</span>Une paire sans dollar</a><a href="#c5"><b>5</b><span class="snum">5</span>De la volatilité à la plage</a><a href="#pools"><b>6</b><span class="snum">6</span>Les six pools</a><a href="#vlab"><b>7</b><span class="snum">7</span>Laboratoire : la volatilité</a><a href="#c8"><b>8</b><span class="snum">8</span>Les limites</a><a href="#lexique"><b>9</b><span class="snum">9</span>Lexique</a><a href="#sources"><b>10</b><span class="snum">10</span>Sources</a></nav>
+    <nav class="side" aria-label="Sommaire"><div class="side-head"><span class="side-title">Sommaire</span><span class="prog-t"><b id="progN">0 %</b> parcouru</span><span class="prog-bar"><i id="progB"></i></span></div><a href="#c1"><b>1</b><span class="snum">1</span>Mesurer une variation</a><a href="#c2"><b>2</b><span class="snum">2</span>La volatilité</a><a href="#c3"><b>3</b><span class="snum">3</span>Les estimateurs</a><a href="#c4"><b>4</b><span class="snum">4</span>Une paire sans dollar</a><a href="#c5"><b>5</b><span class="snum">5</span>De la volatilité à la plage</a><a href="#pools"><b>6</b><span class="snum">6</span>Les six pools</a><a href="#vlab"><b>7</b><span class="snum">7</span>Laboratoire : la volatilité</a><a href="#c8"><b>8</b><span class="snum">8</span>Le score d'efficacité</a><a href="#c9"><b>9</b><span class="snum">9</span>Les limites</a><a href="#lexique"><b>10</b><span class="snum">10</span>Lexique</a><a href="#sources"><b>11</b><span class="snum">11</span>Sources</a></nav>
     <div class="content">
   <!-- 1 -->
   <section class="chap" id="c1">
@@ -1411,7 +1418,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 <div class="pb-row"><span class="pb-n">SOL / USDC</span><span class="pb-t"><i style="width:69.8%"></i></span><span class="pb-v">62 %</span></div>
 <div class="pb-row"><span class="pb-n">QQQ / USDG</span><span class="pb-t"><i style="width:25.2%"></i></span><span class="pb-v">22 %</span></div>
 </div>
-      <p class="pool-cap">Volatilité annuelle (close-to-close, dernière année). Pour comparaison, une loi normale ne produit des journées au-delà de 3 écarts-types que 0,27 % du temps ; toutes ces pools en ont nettement plus : ce sont les « queues épaisses » du <a class="chref" href="#sec-8-1">8.1</a>.</p>
+      <p class="pool-cap">Volatilité annuelle (close-to-close, dernière année). Pour comparaison, une loi normale ne produit des journées au-delà de 3 écarts-types que 0,27 % du temps ; toutes ces pools en ont nettement plus : ce sont les « queues épaisses » du <a class="chref" href="#sec-9-1">9.1</a>.</p>
       <h3 id="sec-6-2">6.2 ETH / USDC</h3>
       <div class="pool-card" id="pool-eth">
         <div class="pc-tags"><span>Uniswap v3</span><span>Ethereum</span><span>frais 0,05 %</span><span class="pc-lvl pc-hi">volatilité élevée</span></div>
@@ -1491,7 +1498,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
       <div class="pool-card" id="pool-qqq">
         <div class="pc-tags"><span>Uniswap v3</span><span>Robinhood Chain</span><span>frais 0,05 %</span><span class="pc-lvl pc-lo">volatilité faible</span></div>
         <p>Ici, <strong>QQQ</strong> n'est pas une cryptomonnaie : c'est un jeton émis par Robinhood qui suit le prix du fonds <strong>Invesco QQQ</strong>, un ETF qui réplique le Nasdaq-100 (les 100 plus grandes sociétés non financières cotées au Nasdaq, comme Apple, Nvidia ou Microsoft). Le jeton s'échange 24 h sur 24 et 7 jours sur 7 sur <strong>Robinhood Chain</strong>, la blockchain de Robinhood lancée en juillet 2026, contre l'<a class="lexref" href="#lex-usdc" title="Jetons conçus pour valoir 1 dollar américain (stablecoins).">USDG</a>, un stablecoin émis par Paxos.</p>
-        <p><strong>Profil.</strong> Une action tokénisée : sa volatilité est celle d'un indice boursier, bien plus faible que celle des cryptomonnaies. Particularité : la bourse ferme la nuit et le week-end, mais le jeton continue de s'échanger (<a class="chref" href="#sec-8-5">8.5</a>).</p>
+        <p><strong>Profil.</strong> Une action tokénisée : sa volatilité est celle d'un indice boursier, bien plus faible que celle des cryptomonnaies. Particularité : la bourse ferme la nuit et le week-end, mais le jeton continue de s'échanger (<a class="chref" href="#sec-9-5">9.5</a>).</p>
         <div class="pc-stats">
           <div><b>22 %</b><span>volatilité sur 1 an</span></div>
           <div><b>26 %</b><span>sur les 90 derniers jours</span></div>
@@ -1632,27 +1639,71 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     </div>
   </section>
 
-  <!-- 7 -->
+  <!-- 8 : SCORE D'EFFICACITÉ -->
   <section class="chap" id="c8">
     <div class="chap-n"><span>Chapitre</span>8</div>
     <div class="prose">
+      <h2>Le score d'efficacité</h2>
+      <p class="chap-intro">Le backtest du <a class="chref" href="#vBt">laboratoire</a> dit combien de plages sont quittées et combien de temps le prix reste dedans. Il ne dit pas quel estimateur donne les plages les plus « utiles ». Ce chapitre construit un score simple : la liquidité apportée, multipliée par le temps pendant lequel elle travaille.</p>
+
+      <h3 id="sec-8-1">8.1 L'idée : liquidité × temps</h3>
+      <p>Une position ne touche des frais que lorsque le prix est dans sa plage, et elle en touche d'autant plus que sa <strong>liquidité</strong> \(L\) est grande. Pour un même capital, une plage étroite donne un \(L\) plus grand, mais le prix en sort plus souvent. Le score mesure ce compromis :</p>
+      <div class="math">\[ \text{score} = L \times \text{temps passé dans la plage} \]</div><p class="f-leg">\(L\) : liquidité de la position · temps : nombre de jours où le prix est dans la plage</p>
+      <p>La liquidité se calcule à partir de la valeur \(V\) de la position (comptée dans le jeton de cotation, par exemple en USDC). D'après la présentation CLMM, une position \([p_a\,;\,p_b]\) au prix \(P_0\) contient \(x = L\left(\frac{1}{\sqrt{P_0}} - \frac{1}{\sqrt{p_b}}\right)\) jetons de base et \(y = L\left(\sqrt{P_0} - \sqrt{p_a}\right)\) jetons de cotation. On isole \(L\) :</p>
+      <div class="math deriv">\[ \begin{aligned} V &= x\,P_0 + y && \small\text{valeur de la position au prix } P_0 \\[3pt] V &= L\left(\frac{1}{\sqrt{P_0}} - \frac{1}{\sqrt{p_b}}\right)P_0 + L\left(\sqrt{P_0} - \sqrt{p_a}\right) && \small\text{on remplace } x \text{ et } y \\[3pt] L &= \frac{V}{\left(\frac{1}{\sqrt{P_0}} - \frac{1}{\sqrt{p_b}}\right)P_0 + \sqrt{P_0} - \sqrt{p_a}} && \small\text{on met } L \text{ en évidence et on divise} \end{aligned} \]</div><p class="f-leg">\(V\) : valeur de la position · \(x, y\) : jetons de base et de cotation · \(P_0\) : prix actuel · \(p_a, p_b\) : bornes de la plage · \(L\) : liquidité</p>
+
+      <h3 id="sec-8-2">8.2 Une liquidité sans unité</h3>
+      <p>Le nombre \(L\) dépend du capital \(V\) et du prix \(P_0\) : il n'est pas comparable d'une pool à l'autre. On le compare donc à la liquidité d'une position v2 (plage infinie) de même capital. On prend aussi les bornes du <a class="chref" href="#sec-5-4">5.4</a>, \(p_a = P_0/k\) et \(p_b = k\,P_0\), qui sont exactement celles que pose le laboratoire. Le dénominateur devient :</p>
+      <div class="math deriv">\[ \begin{aligned} \left(\frac{1}{\sqrt{P_0}} - \frac{1}{\sqrt{k\,P_0}}\right)P_0 + \sqrt{P_0} - \sqrt{\frac{P_0}{k}} &= \sqrt{P_0} - \frac{\sqrt{P_0}}{\sqrt{k}} + \sqrt{P_0} - \frac{\sqrt{P_0}}{\sqrt{k}} && \small\text{car } \frac{P_0}{\sqrt{P_0}} = \sqrt{P_0} \\[3pt] &= 2\sqrt{P_0}\left(1 - \frac{1}{\sqrt{k}}\right) && \small\text{on met } 2\sqrt{P_0} \text{ en évidence} \end{aligned} \]</div><p class="f-leg">\(P_0\) : prix actuel · \(k\) : facteur de la plage (\(p_a = P_0/k\), \(p_b = k\,P_0\))</p>
+      <p>Pour la position v2, \(p_a \to 0\) et \(p_b \to \infty\), donc \(1/\sqrt{p_b} \to 0\) et \(\sqrt{p_a} \to 0\) :</p>
+      <div class="math deriv">\[ \begin{aligned} L_{v2} &= \frac{V}{\frac{1}{\sqrt{P_0}}\cdot P_0 + \sqrt{P_0}} = \frac{V}{2\sqrt{P_0}} \\[3pt] E = \frac{L_{v3}}{L_{v2}} &= \frac{V}{2\sqrt{P_0}\left(1 - 1/\sqrt{k}\right)} \cdot \frac{2\sqrt{P_0}}{V} = \frac{1}{1 - 1/\sqrt{k}} && \small V \text{ et } P_0 \text{ se simplifient} \end{aligned} \]</div><p class="f-leg">\(L_{v2}, L_{v3}\) : liquidité d'une position v2 et de la position v3 de même valeur \(V\) · \(E\) : efficacité</p>
+      <p>On retrouve l'<strong>efficacité</strong> du <a class="chref" href="#sec-5-4">5.4</a> : \(E\) dit combien de fois plus de liquidité la position apporte qu'une position v2 du même montant. Ni le capital ni le prix n'interviennent, ce qui permet de comparer toutes les pools.</p>
+      <div class="box concret"><span class="lbl">Concrètement · pourquoi pas \(1 \pm\) largeur ?</span>On pourrait prendre \(P_0 = 1\), \(p_a = 1 - w\) et \(p_b = 1 + w\). Mais en logarithme, la borne basse serait alors un peu plus loin du prix que la borne haute : ce n'est pas la plage que pose le laboratoire. L'écart reste petit (à ±10 %, \(E \approx 20{,}4\) au lieu de \(21{,}5\)), mais les bornes \(P_0/k\) et \(k\,P_0\) donnent exactement la liquidité des plages testées.</div>
+
+      <h3 id="sec-8-3">8.3 Plage par plage</h3>
+      <p>Le backtest pose une suite de plages. Pour chaque plage \(i\), on connaît son facteur \(k_i\), sa durée \(D_i\) (en jours) et le nombre de jours \(d_i\) où la clôture était dans la plage. Le score additionne la liquidité de chaque jour passé dans une plage, puis divise par la durée totale :</p>
+      <div class="math">\[ \text{score} = \frac{\sum_i E_i \, d_i}{\sum_i D_i} \qquad\text{avec}\qquad E_i = \frac{1}{1 - 1/\sqrt{k_i}} \]</div><p class="f-leg">\(i\) : numéro de la plage · \(k_i\) : son facteur · \(E_i\) : son efficacité · \(d_i\) : jours où la clôture est dans la plage · \(D_i\) : durée de la plage en jours</p>
+      <p>Une position v2, toujours dans sa plage, aurait un score de 1. Un score de 15 veut dire qu'en moyenne sur la période, la position a apporté 15 fois plus de liquidité au prix du marché qu'une position v2 du même montant (en comptant 0 les jours passés hors de la plage).</p>
+      <p>Il faut faire le calcul plage par plage, et non avec la largeur moyenne, car \(E\) grandit très vite quand la plage se resserre. Avec deux plages de même durée, toujours dans la plage, de ±2 % et ±18 % (largeur moyenne ±10 %) :</p>
+      <div class="math deriv">\[ \begin{aligned} E(1{,}02) &= \frac{1}{1 - 1/\sqrt{1{,}02}} \approx 101{,}5 \qquad E(1{,}18) = \frac{1}{1 - 1/\sqrt{1{,}18}} \approx 12{,}6 \\[3pt] \text{score} &= \frac{101{,}5 + 12{,}6}{2} \approx 57{,}0 && \small\text{plage par plage} \\[3pt] E(1{,}10) &= \frac{1}{1 - 1/\sqrt{1{,}10}} \approx 21{,}5 && \small\text{avec la largeur moyenne : moins de la moitié} \end{aligned} \]</div><p class="f-leg">\(1{,}02\) et \(1{,}18\) : facteurs des plages ±2 % et ±18 % · \(1{,}10\) : facteur de la largeur moyenne ±10 %</p>
+
+      <h3 id="sec-8-4">8.4 Le score des estimateurs</h3>
+      <p>Le tableau calcule le score de chaque estimateur sur la pool choisie, avec les plages du backtest. Les réglages sont partagés avec le <a class="chref" href="#vlab">laboratoire</a> : la fenêtre, λ et le mode « réajuster dès la sortie » se choisissent là-bas.</p>
+      <div class="panel sc-panel" id="sPanel">
+      <div class="sc-ctl">
+        <div class="ctl"><span class="hint">Pool</span><div class="presets" id="sPool" role="group" aria-label="Pool"></div></div>
+        <div class="ctl"><span class="hint">Horizon de réajustement T</span><div class="presets" id="sHz" role="group" aria-label="Horizon de réajustement"><button type="button" data-h="1">1 jour</button><button type="button" data-h="7">1 semaine</button><button type="button" data-h="30">1 mois</button></div></div>
+        <div class="ctl"><div class="ctl-head"><label for="sP">Risque de sortie p</label><b class="v-num" id="sPN"></b></div><input id="sP" type="range" min="1" max="60" step="1" value="20" aria-label="Risque de sortie accepté"></div>
+      </div>
+      <div class="tw" id="sStats"></div>
+      <p class="hint" id="sNote"></p>
+      </div>
+      <h3 id="sec-8-5">8.5 Ce que le score ne mesure pas</h3>
+      <p>Le score compte la liquidité et le temps, pas encore l'argent gagné. Il suppose que chaque jour dans la plage vaut autant qu'un autre : il ne tient pas compte du volume échangé ce jour-là, ni de la part de la liquidité totale du pool que représente la position. Il ne compte pas non plus les pertes : la perte par rapport à une simple détention des jetons quand le prix bouge, et les coûts de chaque réajustement (gas, frais d'échange). Un estimateur qui donne des plages trop étroites peut donc avoir un bon score tout en perdant de l'argent. Ces liens entre la volatilité, le volume, la TVL et les frais seront étudiés plus loin dans le travail.</p>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="chap" id="c9">
+    <div class="chap-n"><span>Chapitre</span>9</div>
+    <div class="prose">
       <h2>Les limites de la méthode</h2>
       <p class="chap-intro">Les formules des chapitres 3 et 5 reposent sur un modèle simple. Voici ce qu'il laisse de côté ; le backtest du <a class="chref" href="#vBt">laboratoire</a> permet de mesurer l'effet de ces limites sur chaque pool.</p>
-      <h3 id="sec-8-1">8.1 Les queues épaisses</h3>
+      <h3 id="sec-9-1">9.1 Les queues épaisses</h3>
       <p>Les cryptomonnaies font beaucoup plus de très grands mouvements que ne le prévoit la loi normale. Le risque de sortie réel est donc un peu <strong>plus élevé</strong> que celui calculé au <a class="chref" href="#c5">chapitre 5</a>.</p>
-      <h3 id="sec-8-2">8.2 La volatilité change</h3>
+      <h3 id="sec-9-2">9.2 La volatilité change</h3>
       <p>Une estimation sur 30 jours réagit vite mais varie beaucoup ; une estimation sur 180 jours est stable mais en retard. L'EWMA (<a class="chref" href="#sec-3-4">3.4</a>) est un compromis entre les deux.</p>
-      <h3 id="sec-8-3">8.3 Les mèches on-chain</h3>
+      <h3 id="sec-9-3">9.3 Les mèches on-chain</h3>
       <p>Dans les pools, un seul gros échange peut créer un plus haut ou un plus bas isolé. Sur les 90 jours jusqu'au 21 novembre 2026, pour l'ETH, close-to-close donne 51 % sur la pool comme sur Binance. Parkinson, lui, donne 75 % sur la pool contre 56 % sur Binance. Pour le LP, ces mèches sont pourtant de vraies traversées de sa plage, même brèves.</p>
-      <h3 id="sec-8-4">8.4 Pas de tendance</h3>
+      <h3 id="sec-9-4">9.4 Pas de tendance</h3>
       <p>Toutes les formules supposent un prix sans tendance. Sur une semaine, la tendance est faible par rapport à la volatilité, mais ce n'est plus vrai sur plusieurs mois.</p>
-      <h3 id="sec-8-5">8.5 Les actions tokénisées</h3>
+      <h3 id="sec-9-5">9.5 Les actions tokénisées</h3>
       <p>Le QQQ tokénisé s'échange aussi le week-end, mais il y bouge 2 à 3 fois moins qu'en semaine, alors que la bourse est fermée. Faut-il alors annualiser avec 365 jours ou avec 252 ? Les deux choix se défendent. Au Nasdaq, Parkinson et Garman-Klass donnent aussi une volatilité nettement plus basse que close-to-close, car ils ne voient pas les écarts entre la clôture d'un jour et l'ouverture du lendemain.</p>
     </div>
   </section>
 
   <section class="chap" id="lexique">
-    <div class="chap-n"><span>Chapitre</span>9</div>
+    <div class="chap-n"><span>Chapitre</span>10</div>
     <div class="prose">
       <h2>Lexique</h2>
       <dl class="gloss">
@@ -1678,20 +1729,23 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
         <dt id="lex-phi">Fonction Φ</dt><dd>Fonction de répartition de la loi normale centrée réduite : \(\Phi(z)\) est la probabilité qu'une variable normale standard soit inférieure à \(z\).</dd>
         <dt id="lex-dvol">DVOL</dt><dd>Indice de Deribit : volatilité annualisée que le marché des options attend pour les 30 prochains jours, pour le bitcoin ou l'ether.</dd>
         <dt id="lex-horizon">Horizon de réajustement</dt><dd>Durée \(T\) au bout de laquelle le LP prévoit de vérifier sa position et, si besoin, de la déplacer.</dd>
+        <dt id="lex-liquidite">Liquidité L</dt><dd>Nombre qui mesure la profondeur d'une position autour du prix : plus \(L\) est grand, plus la position échange de jetons, et touche de frais, quand le prix bouge (8.1).</dd>
+        <dt id="lex-efficacite">Efficacité</dt><dd>Liquidité d'une position v3 divisée par celle d'une position v2 de même montant : \(E = 1/(1 - 1/\sqrt{k})\) (8.2).</dd>
+        <dt id="lex-score">Score d'efficacité</dt><dd>Moyenne, jour par jour, de l'efficacité des plages successives, en comptant 0 les jours où le prix est hors de la plage (8.3). Une position v2 a un score de 1.</dd>
       </dl>
     </div>
   </section>
 
   <section class="chap" id="sources">
-    <div class="chap-n"><span>Chapitre</span>10</div>
+    <div class="chap-n"><span>Chapitre</span>11</div>
     <div class="prose">
       <h2>Sources et pour aller plus loin</h2>
       <p>Les documents ci-dessous ont servi à construire ce site.</p>
-      <h3 id="sec-10-1">10.1 Mesurer la volatilité</h3>
+      <h3 id="sec-11-1">11.1 Mesurer la volatilité</h3>
       <ul class="sources"><li><a class="src-link" href="https://doi.org/10.1086/296071" target="_blank" rel="noopener">The Extreme Value Method for Estimating the Variance of the Rate of Return</a><span class="src-a">M. Parkinson, The Journal of Business, 1980</span><span class="src-w">L'estimateur fondé sur le plus haut et le plus bas (3.2).</span></li><li><a class="src-link" href="https://arxiv.org/abs/0807.3492" target="_blank" rel="noopener">The Garman–Klass volatility estimator revisited</a><span class="src-a">I. Meilijson, 2008 ; article d'origine : M. Garman et M. Klass, The Journal of Business, 1980</span><span class="src-w">Présente et discute l'estimateur à quatre prix (3.3) et sa précision.</span></li><li><a class="src-link" href="https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document" target="_blank" rel="noopener">RiskMetrics — Technical Document</a><span class="src-a">J.P. Morgan et Reuters, 4e édition, 1996</span><span class="src-w">La méthode EWMA (3.4) et le choix λ = 0,94 pour des données journalières.</span></li><li><a class="src-link" href="https://insights.deribit.com/exchange-updates/dvol-deribit-implied-volatility-index/" target="_blank" rel="noopener">DVOL — Deribit Implied Volatility Index</a><span class="src-a">Deribit Insights</span><span class="src-w">La méthode de calcul du DVOL (3.5).</span></li></ul>
-      <h3 id="sec-10-2">10.2 Liquidité concentrée</h3>
+      <h3 id="sec-11-2">11.2 Liquidité concentrée</h3>
       <ul class="sources"><li><a class="src-link" href="https://dex-v3-presentation.vercel.app/" target="_blank" rel="noopener">Présentation CLMM</a><span class="src-a">Q. Mathil, travail de maturité, 2026</span><span class="src-w">Le cours interactif sur Uniswap v3 dont sont tirées les formules des ticks (7.1) et de l'efficacité (3.3).</span></li><li><a class="src-link" href="https://uniswap.org/whitepaper-v3.pdf" target="_blank" rel="noopener">Uniswap v3 Core (livre blanc)</a><span class="src-a">H. Adams, N. Zinsmeister, M. Salem, R. Keefer, D. Robinson, 2021</span><span class="src-w">Le document officiel qui introduit la liquidité concentrée et les ticks.</span></li></ul>
-      <h3 id="sec-10-3">10.3 Données de prix</h3>
+      <h3 id="sec-11-3">11.3 Données de prix</h3>
       <ul class="sources"><li><a class="src-link" href="https://www.geckoterminal.com/" target="_blank" rel="noopener">GeckoTerminal</a><span class="src-a">Bougies journalières des six pools, 180 derniers jours</span><span class="src-w">Source « Pool on-chain » du laboratoire : le prix réellement vu par les LP de chaque pool.</span></li><li><a class="src-link" href="https://www.binance.com/" target="_blank" rel="noopener">Binance</a><span class="src-a">ETH / USDT, BTC / USDT, SOL / USDT, ETH / BTC, depuis novembre 2023</span><span class="src-w">Historique long (3 ans) des pools ETH, WBTC et SOL, et exemples des chapitres 2 à 5.</span></li><li><a class="src-link" href="https://app.hyperliquid.xyz/" target="_blank" rel="noopener">Hyperliquid</a><span class="src-a">HYPE / USDC (marché au comptant), depuis novembre 2024</span><span class="src-w">Historique long de la pool HYPE / USDC.</span></li><li><a class="src-link" href="https://www.deribit.com/statistics/BTC/volatility-index" target="_blank" rel="noopener">Deribit · DVOL</a><span class="src-a">DVOL du bitcoin et de l'ether, clôture journalière, depuis novembre 2023</span><span class="src-w">Estimateur DVOL du laboratoire (pools ETH / USDC, WBTC / USDC et WBTC / ETH).</span></li><li><a class="src-link" href="https://finance.yahoo.com/quote/QQQ/" target="_blank" rel="noopener">Yahoo Finance · QQQ</a><span class="src-a">Fonds Invesco QQQ (Nasdaq-100), jours de bourse depuis novembre 2023</span><span class="src-w">Historique long de la pool QQQ / USDG (action tokénisée).</span></li></ul>
     </div>
   </section>
@@ -2110,6 +2164,8 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   function range(sig){ const T=S.hz/365, sd=sig*Math.sqrt(T), z=zFor(S.p), a=z*sd, k=Math.exp(a); return {T,sd,z,a,k}; }
 
   // ---------- backtest : chaque jour passé, la plage aurait-elle tenu ? ----------
+  // efficacité d'une plage [P₀/k ; k·P₀] face à une position v2 de même montant (8.2)
+  const Eff=k=>1/(1-1/Math.sqrt(k));
   function backtest(M){
     const s=M.s, n=s.n, h=hzSteps(), sT=Math.sqrt(S.hz/365)*M.sq, fmax=new Array(n).fill(NaN), fmin=new Array(n).fill(NaN);
     for(let t=0;t+h<n;t++){ let mx=-Infinity, mn=Infinity; for(let j=1;j<=h;j++){ if(s.h[t+j]>mx) mx=s.h[t+j]; if(s.l[t+j]<mn) mn=s.l[t+j]; } fmax[t]=mx; fmin[t]=mn; }
@@ -2117,12 +2173,14 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
       for(let t=0;t+h<n;t++){ const sd=arr[t]; if(!isFinite(sd)) continue; const a=z*sd*sT; nb++; if(Math.log(fmax[t]/s.c[t])>a || Math.log(s.c[t]/fmin[t])>a) out++; }
       return {nb,out,r:nb?out/nb:NaN}; };
     // détail au risque choisi : largeur moyenne, part des clôtures dans la plage, bougies avant la première sortie
-    const detail=k=>{ const z=zFor(S.p), arr=M[k]; let nb=0, out=0, wsum=0, inDays=0, before=0;
+    const detail=k=>{ const z=zFor(S.p), arr=M[k]; let nb=0, out=0, wsum=0, inDays=0, before=0, esum=0, escore=0;
       for(let t=0;t+h<n;t++){ const sd=arr[t]; if(!isFinite(sd)) continue; const a=z*sd*sT, up=s.c[t]*Math.exp(a), dn=s.c[t]/Math.exp(a);
-        nb++; wsum+=Math.exp(a)-1; let first=-1;
-        for(let j=1;j<=h;j++){ const cj=s.c[t+j]; if(cj<=up&&cj>=dn) inDays++; if(first<0&&(s.h[t+j]>up||s.l[t+j]<dn)) first=j; }
+        nb++; wsum+=Math.exp(a)-1; let first=-1, ins=0; const E=Eff(Math.exp(a)); esum+=E;
+        for(let j=1;j<=h;j++){ const cj=s.c[t+j]; if(cj<=up&&cj>=dn) ins++; if(first<0&&(s.h[t+j]>up||s.l[t+j]<dn)) first=j; }
+        inDays+=ins; escore+=E*ins;
         if(first>0){ out++; before+=first-1; } }
-      return {nb,out,r:nb?out/nb:NaN,width:nb?wsum/nb:NaN,inside:nb?inDays/(nb*h):NaN,before:out?before/out:NaN}; };
+      const width=nb?wsum/nb:NaN, inside=nb?inDays/(nb*h):NaN;
+      return {nb,out,r:nb?out/nb:NaN,width,inside,before:out?before/out:NaN,emean:nb?esum/nb:NaN,score:nb?escore/(nb*h):NaN,naive:Eff(1+width)*inside}; };
     const cur={}, cal={}; EST.forEach(e=>{ cur[e.k]=detail(e.k); cal[e.k]=PCAL.map(p=>rate(e.k,p).r); });
     // plages successives sans chevauchement, pour l'estimateur choisi (en partant de la plus récente)
     const z=zFor(S.p), arr=M[S.est], boxes=[];
@@ -2132,13 +2190,13 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     boxes.reverse();
     // mode « réajuster dès la sortie » : une seule suite de plages dans le temps ; dès que le prix sort,
     // une nouvelle plage est posée à la clôture du jour de sortie (sinon, à la fin de l'horizon T)
-    const seq=k=>{ const z=zFor(S.p), arr=M[k], bx=[]; let t=arr.findIndex(v=>isFinite(v)), days=0, inDays=0, exits=0, wsum=0;
+    const seq=k=>{ const z=zFor(S.p), arr=M[k], bx=[]; let t=arr.findIndex(v=>isFinite(v)), days=0, inDays=0, exits=0, wsum=0, esum=0, escore=0;
       while(t>=0 && t<n-1){ const sd=arr[t]; if(!isFinite(sd)){ t++; continue; }
-        const kk=Math.exp(z*sd*sT), up=s.c[t]*kk, dn=s.c[t]/kk, end=Math.min(t+h,n-1); wsum+=kk-1;
+        const kk=Math.exp(z*sd*sT), up=s.c[t]*kk, dn=s.c[t]/kk, end=Math.min(t+h,n-1), E=Eff(kk); wsum+=kk-1; esum+=E;
         let exitDay=-1, ins=0; for(let j=t+1;j<=end;j++){ if(s.c[j]<=up&&s.c[j]>=dn) ins++; if(s.h[j]>up||s.l[j]<dn){ exitDay=j; break; } }
-        const last=exitDay>=0?exitDay:end; days+=last-t; inDays+=ins; if(exitDay>=0) exits++;
+        const last=exitDay>=0?exitDay:end; days+=last-t; inDays+=ins; escore+=E*ins; if(exitDay>=0) exits++;
         bx.push({t,t1:last,up,dn,sig:sd*M.sq,exitDay,inDays:ins}); t=last; }
-      const nb=bx.length; return {nb,out:exits,r:nb?exits/nb:NaN,width:nb?wsum/nb:NaN,inside:days?inDays/days:NaN,perMonth:days?nb/days*30:NaN,len:nb?days/nb:NaN,boxes:bx}; };
+      const nb=bx.length, width=nb?wsum/nb:NaN, inside=days?inDays/days:NaN; return {nb,out:exits,r:nb?exits/nb:NaN,width,inside,emean:nb?esum/nb:NaN,score:days?escore/days:NaN,naive:Eff(1+width)*inside,perMonth:days?nb/days*30:NaN,len:nb?days/nb:NaN,boxes:bx}; };
     if(S.reb){ EST.forEach(e=>{ cur[e.k]=seq(e.k); }); return {h,cur,cal,boxes:cur[S.est].boxes}; }
     return {h,cur,cal,boxes};
   }
@@ -2317,6 +2375,18 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
         +'<span role="cell"><b class="bt-v">'+pc(c.inside)+'</b><span class="bt-bar bt-in"><i style="width:'+(isFinite(c.inside)?c.inside*100:0)+'%"></i></span><small>des clôtures dans la plage</small></span></div>'; }).join('')+'</div>';
     $('vBtNote').textContent='Risque visé p = '+pc(S.p,0)+' · horizon '+HZ[S.hz]+' ('+hTxt+') · fenêtre '+M.w+' bougies. Chaque plage est posée à la clôture d\'un jour, avec la volatilité connue ce jour-là, puis comparée aux plus hauts et plus bas des '+hTxt+' suivantes. « Temps dans la plage » : part des clôtures des '+hTxt+' suivantes qui tombent dans la plage, y compris après une sortie si le prix revient (la position touche alors à nouveau des frais).';
     if(S.reb) $('vBtNote').textContent='Mode « réajuster dès la sortie » · risque visé p = '+pc(S.p,0)+' · horizon '+HZ[S.hz]+' ('+hTxt+') · fenêtre '+M.w+' bougies. On suit une seule position dans le temps : chaque plage est posée avec la volatilité connue ce jour-là ; dès qu\'un plus haut ou un plus bas la franchit, une nouvelle plage est posée à la clôture de ce jour, sinon à la fin de l\'horizon. « Temps dans la plage » : part des clôtures de toute la période qui tombent dans la plage en cours. Avec un horizon d\'un jour, ce mode donne exactement les mêmes chiffres que l\'autre : une plage ne dure de toute façon qu\'un jour, et la suivante est posée le lendemain dans les deux cas.';
+    if($('sStats')){
+      const sc=EST.map(e=>bt.cur[e.k].score).filter(isFinite), mxS=sc.length?Math.max(...sc):1;
+      $('sStats').innerHTML='<div class="bt-tab bt-5" role="table"><div class="bt-r bt-head" role="row"><span role="columnheader">Estimateur</span><span role="columnheader">Score <em>(v2 = 1)</em></span><span role="columnheader">Largeur moyenne</span><span role="columnheader">Temps dans la plage</span><span role="columnheader">Efficacité moyenne</span></div>'+EST.map(e=>{
+        const c=bt.cur[e.k], best=isFinite(c.score)&&c.score===mxS&&sc.length>1;
+        return '<div class="bt-r'+(best?' sel':'')+'" role="row"><span class="bt-n" role="cell"><i class="v-dot" style="background:var('+e.c+')"></i>'+e.n+'</span>'
+          +'<span role="cell"><em class="bt-ml">Score</em><b class="bt-v'+(best?' bt-best':'')+'">'+(isFinite(c.score)?'× '+f(c.score,1):'—')+'</b><span class="bt-bar"><i style="width:'+(isFinite(c.score)?c.score/mxS*100:0)+'%"></i></span><small>'+(c.nb?(best?'meilleur score · ':'')+'avec la largeur moyenne : × '+f(c.naive,1):'aucune plage testable')+'</small></span>'
+          +'<span role="cell"><em class="bt-ml">Largeur moyenne</em><b class="bt-v">± '+f(c.width*100,1)+' %</b><small>'+c.nb+' plages</small></span>'
+          +'<span role="cell"><em class="bt-ml">Temps dans la plage</em><b class="bt-v">'+pc(c.inside)+'</b><span class="bt-bar bt-in"><i style="width:'+(isFinite(c.inside)?c.inside*100:0)+'%"></i></span></span>'
+          +'<span role="cell"><em class="bt-ml">Efficacité moyenne</em><b class="bt-v">'+(isFinite(c.emean)?'× '+f(c.emean,1):'—')+'</b><small>moyenne des E<sub>i</sub></small></span></div>'; }).join('')+'</div>';
+      $('sNote').textContent=D[S.pool].name+' · horizon '+HZ[S.hz]+' · risque visé '+pc(S.p,0)+' · fenêtre '+M.w+' bougies · '+(S.reb?'réajustement dès la sortie':'plages tenues jusqu\'à l\'horizon')+'. Score = Σ Eᵢ·dᵢ / Σ Dᵢ (8.3). La ligne « avec la largeur moyenne » montre ce que donnerait le calcul sans passer plage par plage.';
+      $('sPN').textContent=pc(S.p,0);
+    }
     const nb=bt.boxes.length, ok=bt.boxes.filter(b=>b.exitDay<0).length;
     $('vBtBoxes').textContent=nb?('Plages successives de l\'estimateur '+EST.find(e=>e.k===S.est).n+' : '+ok+' tenues jusqu\'à l\'horizon (vert) et '+(nb-ok)+' quittées (rouge) sur '+nb+(S.reb?' ; après chaque sortie, la plage suivante commence le jour même.':'.')):'';
     const en=EST.find(e=>e.k===S.est).n, za=PhiInv(1-S.p/4);
@@ -2342,6 +2412,8 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     $('vEst').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.e===S.est); if(b.dataset.e==='dv'){ b.disabled=!D[S.pool].dvol; b.title=b.disabled?'Le DVOL n\'existe que pour le bitcoin et l\'ether (pools ETH / USDC, WBTC / USDC et WBTC / ETH).':''; } });
     document.querySelectorAll('.v-dvleg').forEach(x=>x.hidden=!D[S.pool].dvol);
     $('vHz').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.h===S.hz));
+    if($('sPool')){ $('sPool').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===S.pool)); $('sHz').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.h===S.hz)); }
+    const pv=String(Math.round(S.p*100)); [$('vP'),$('sP')].forEach(x=>{ if(x&&x.value!==pv){ x.value=pv; } }); if(window.paintSliders) window.paintSliders();
   }
   function fixWin(){ const n=series(S.pool,S.src).n; if(S.win>n-1){ const ok=[...$('vWin').querySelectorAll('button')].map(b=>+b.dataset.w).filter(w=>w<=n-1); S.win=ok.length?Math.max(...ok):n-1; } }
   function update(){
@@ -2363,6 +2435,12 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   $('vLam').addEventListener('input',e=>{ S.lam=+e.target.value; update(); });
   $('vReb').addEventListener('change',e=>{ S.reb=e.target.checked; update(); });
   $('vP').addEventListener('input',e=>{ S.p=+e.target.value/100; update(); });
+  if($('sPool')){
+    $('sPool').innerHTML=D.map((p,i)=>'<button type="button" data-i="'+i+'">'+p.name+'</button>').join('');
+    $('sPool').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S.pool=+b.dataset.i; hovI=null; update(); });
+    $('sHz').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; S.hz=+b.dataset.h; update(); });
+    $('sP').addEventListener('input',e=>{ S.p=+e.target.value/100; update(); });
+  }
   // survol synchronisé : prix, volatilité et backtest partagent le jour survolé
   ['vcPrice','vcBt'].forEach(id=>{ const c=$(id);
     c.addEventListener('pointermove',e=>{ if(!inv.t) return; const r=c.getBoundingClientRect(); const i=Math.round(inv.t(e.clientX-r.left)); hovI=(i>=0&&i<=M.s.n-1)?i:null; redraw(); });
