@@ -1157,6 +1157,17 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .v-switch input:focus-visible+.v-sw{outline:2px solid var(--accent);outline-offset:2px}
 .bt-tab.bt-5 .bt-r{grid-template-columns:minmax(110px,1fr) minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.2fr) minmax(0,1fr)}
 .bt-v.bt-best{color:var(--accent)}
+.lex-back{--lg-top:rgba(255,255,255,.58);--lg-bot:rgba(255,255,255,.30);--lg-hi:rgba(255,255,255,.85);--lg-rim:rgba(255,255,255,.95);--lg-edge:rgba(245,15,180,.20);--lg-glow:rgba(245,15,180,.08);--lg-shadow:rgba(140,20,105,.22);
+  background:radial-gradient(160px circle at var(--mx) var(--my),var(--lg-hi),transparent 60%),linear-gradient(180deg,var(--lg-top),var(--lg-bot))!important;
+  -webkit-backdrop-filter:blur(16px) saturate(190%)!important;backdrop-filter:blur(16px) saturate(190%)!important;
+  border:1px solid var(--lg-rim)!important;border-radius:999px!important;color:var(--ink)!important;
+  box-shadow:inset 0 1.5px 1px -.5px var(--lg-rim),inset 0 -1.5px 1px -.5px var(--lg-edge),inset 0 0 16px var(--lg-glow),0 10px 26px -10px var(--lg-shadow),0 0 0 1px rgba(245,15,180,.10)!important;
+  transition:opacity .25s ease,transform .18s ease}
+.lex-back:hover{color:var(--accent)!important}
+.lex-back.out{opacity:0;pointer-events:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lex-back{--lg-top:rgba(46,40,48,.62);--lg-bot:rgba(26,24,28,.42);--lg-hi:rgba(252,140,255,.16);--lg-rim:rgba(255,255,255,.14);--lg-edge:rgba(252,114,255,.22);--lg-glow:rgba(252,114,255,.10);--lg-shadow:rgba(0,0,0,.55)}}
+:root[data-theme="dark"] .lex-back{--lg-top:rgba(46,40,48,.62);--lg-bot:rgba(26,24,28,.42);--lg-hi:rgba(252,140,255,.16);--lg-rim:rgba(255,255,255,.14);--lg-edge:rgba(252,114,255,.22);--lg-glow:rgba(252,114,255,.10);--lg-shadow:rgba(0,0,0,.55)}
+@media (prefers-reduced-transparency:reduce){.lex-back{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:var(--surface)!important}}
 .bt-empty{grid-column:2/-1;align-self:center;font-size:.86rem;color:var(--muted);line-height:1.5}
 .bt-go{font:inherit;font-weight:600;color:var(--accent);background:var(--accent-soft);border:0;border-radius:99px;padding:3px 11px;margin:0 2px;cursor:pointer}
 .bt-go:hover{filter:brightness(.96)}
@@ -1619,7 +1630,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
             <div class="stat"><span class="k">Dernier prix</span><span class="v" id="vsP"></span><span class="s" id="vsPd"></span></div>
             <div class="stat"><span class="k">Plage proposée</span><span class="v" id="vsR"></span><span class="s" id="vsRd"></span></div>
             <div class="stat"><span class="k">Ticks de chaque côté</span><span class="v" id="vsT"></span><span class="s" id="vsTd"></span></div>
-            <div class="stat"><span class="k">Efficacité vs v2</span><span class="v" id="vsE"></span><span class="s">formule 3.3 (CLMM)</span></div>
+            <div class="stat"><span class="k">Efficacité vs v2</span><span class="v" id="vsE"></span><span class="s">formule <a class="chref" href="https://dex-v3-presentation.vercel.app/#sec-3-3" target="_blank" rel="noopener">3.3</a> (CLMM)</span></div>
           </div>
         </section>
 
@@ -1737,7 +1748,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
       <h3 id="sec-11-1">11.1 Mesurer la volatilité</h3>
       <ul class="sources"><li><a class="src-link" href="https://doi.org/10.1086/296071" target="_blank" rel="noopener">The Extreme Value Method for Estimating the Variance of the Rate of Return</a><span class="src-a">M. Parkinson, The Journal of Business, 1980</span><span class="src-w">L'estimateur fondé sur le plus haut et le plus bas (3.2).</span></li><li><a class="src-link" href="https://arxiv.org/abs/0807.3492" target="_blank" rel="noopener">The Garman–Klass volatility estimator revisited</a><span class="src-a">I. Meilijson, 2008 ; article d'origine : M. Garman et M. Klass, The Journal of Business, 1980</span><span class="src-w">Présente et discute l'estimateur à quatre prix (3.3) et sa précision.</span></li><li><a class="src-link" href="https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document" target="_blank" rel="noopener">RiskMetrics — Technical Document</a><span class="src-a">J.P. Morgan et Reuters, 4e édition, 1996</span><span class="src-w">La méthode EWMA (3.4) et le choix λ = 0,94 pour des données journalières.</span></li><li><a class="src-link" href="https://insights.deribit.com/exchange-updates/dvol-deribit-implied-volatility-index/" target="_blank" rel="noopener">DVOL — Deribit Implied Volatility Index</a><span class="src-a">Deribit Insights</span><span class="src-w">La méthode de calcul du DVOL (3.5).</span></li></ul>
       <h3 id="sec-11-2">11.2 Liquidité concentrée</h3>
-      <ul class="sources"><li><a class="src-link" href="https://dex-v3-presentation.vercel.app/" target="_blank" rel="noopener">Présentation CLMM</a><span class="src-a">Q. Mathil, travail de maturité, 2026</span><span class="src-w">Le cours interactif sur Uniswap v3 dont sont tirées les formules des ticks (7.1) et de l'efficacité (3.3).</span></li><li><a class="src-link" href="https://uniswap.org/whitepaper-v3.pdf" target="_blank" rel="noopener">Uniswap v3 Core (livre blanc)</a><span class="src-a">H. Adams, N. Zinsmeister, M. Salem, R. Keefer, D. Robinson, 2021</span><span class="src-w">Le document officiel qui introduit la liquidité concentrée et les ticks.</span></li></ul>
+      <ul class="sources"><li><a class="src-link" href="https://dex-v3-presentation.vercel.app/" target="_blank" rel="noopener">Présentation CLMM</a><span class="src-a">Q. Mathil, travail de maturité, 2026</span><span class="src-w">Le cours interactif sur Uniswap v3 dont sont tirées les formules des ticks (<a class="chref" href="https://dex-v3-presentation.vercel.app/#sec-7-1" target="_blank" rel="noopener">7.1</a>) et de l'efficacité (<a class="chref" href="https://dex-v3-presentation.vercel.app/#sec-3-3" target="_blank" rel="noopener">3.3</a>).</span></li><li><a class="src-link" href="https://uniswap.org/whitepaper-v3.pdf" target="_blank" rel="noopener">Uniswap v3 Core (livre blanc)</a><span class="src-a">H. Adams, N. Zinsmeister, M. Salem, R. Keefer, D. Robinson, 2021</span><span class="src-w">Le document officiel qui introduit la liquidité concentrée et les ticks.</span></li></ul>
       <h3 id="sec-11-3">11.3 Données de prix</h3>
       <ul class="sources"><li><a class="src-link" href="https://www.geckoterminal.com/" target="_blank" rel="noopener">GeckoTerminal</a><span class="src-a">Bougies journalières des six pools, 180 derniers jours</span><span class="src-w">Source « Pool on-chain » du laboratoire : le prix réellement vu par les LP de chaque pool.</span></li><li><a class="src-link" href="https://www.binance.com/" target="_blank" rel="noopener">Binance</a><span class="src-a">ETH / USDT, BTC / USDT, SOL / USDT, ETH / BTC, depuis novembre 2023</span><span class="src-w">Historique long (3 ans) des pools ETH, WBTC et SOL, et exemples des chapitres 2 à 5.</span></li><li><a class="src-link" href="https://app.hyperliquid.xyz/" target="_blank" rel="noopener">Hyperliquid</a><span class="src-a">HYPE / USDC (marché au comptant), depuis novembre 2024</span><span class="src-w">Historique long de la pool HYPE / USDC.</span></li><li><a class="src-link" href="https://www.deribit.com/statistics/BTC/volatility-index" target="_blank" rel="noopener">Deribit · DVOL</a><span class="src-a">DVOL du bitcoin et de l'ether, clôture journalière, depuis novembre 2023</span><span class="src-w">Estimateur DVOL du laboratoire (pools ETH / USDC, WBTC / USDC et WBTC / ETH).</span></li><li><a class="src-link" href="https://finance.yahoo.com/quote/QQQ/" target="_blank" rel="noopener">Yahoo Finance · QQQ</a><span class="src-a">Fonds Invesco QQQ (Nasdaq-100), jours de bourse depuis novembre 2023</span><span class="src-w">Historique long de la pool QQQ / USDG (action tokénisée).</span></li></ul>
     </div>
@@ -2045,6 +2056,33 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
   new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   if(document.fonts) document.fonts.ready.then(redraw);
+  // renvois « chapitre 5 », « (6.3) »… : transformés en liens vers le chapitre ou la section (aussi pour le texte écrit par le labo)
+  (function(){
+    const CH={}; document.querySelectorAll('nav.side > a[href^="#"]').forEach(a=>{ const n=a.querySelector('b'); if(n) CH[n.textContent.trim()]=a.getAttribute('href'); });
+    const RE=/(chapitres?\s)(\d{1,2})((?:\s(?:et|à)\s)(\d{1,2}))?|\b(\d{1,2})\.(\d)\b/g, SKIP='a,script,style,.katex,h1,h2,h3,nav,.chap-n,.tag,canvas,button,input,label,svg,figcaption,mjx-container,.MathJax,.no-ref';
+    const mk=(href,txt)=>{ const a=document.createElement('a'); a.className='chref'; a.href=href; a.textContent=txt; return a; };
+    function linkify(root){ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT), list=[]; let n;
+      while(n=w.nextNode()){ const p=n.parentElement; if(!p||p.closest(SKIP)) continue; RE.lastIndex=0; if(RE.test(n.textContent)) list.push(n); }
+      list.forEach(n=>{ const t=n.textContent, frag=document.createDocumentFragment(); let last=0, m, hit=false; RE.lastIndex=0;
+        while(m=RE.exec(t)){
+          if(m[2]){ const h1=CH[m[2]]; if(!h1) continue; frag.append(t.slice(last,m.index)+m[1]); frag.append(mk(h1,m[2]));
+            if(m[3]){ const h2=CH[m[4]]; frag.append(m[3].slice(0,m[3].length-m[4].length)); frag.append(h2?mk(h2,m[4]):m[4]); }
+            last=m.index+m[0].length; hit=true; }
+          else { const id='sec-'+m[5]+'-'+m[6]; if(!document.getElementById(id)) continue; frag.append(t.slice(last,m.index)); frag.append(mk('#'+id,m[5]+'.'+m[6])); last=m.index+m[0].length; hit=true; } }
+        if(!hit) return; frag.append(t.slice(last)); n.replaceWith(frag); }); }
+    linkify(document.querySelector('.content')||document.body);
+    const lab=document.getElementById('vlab'); let busy=false;
+    if(lab) new MutationObserver(()=>{ if(busy) return; busy=true; requestAnimationFrame(()=>{ linkify(lab); busy=false; }); }).observe(lab,{childList:true,subtree:true,characterData:true});
+  })();
+  // bouton « Revenir au texte » : il disparaît dès que le lecteur quitte le lexique
+  (function(){
+    const back=document.querySelector('.lex-back'), lex=document.getElementById('lexique'); if(!back||!lex) return;
+    let seen=false;
+    document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('a.lexref')){ seen=false; back.classList.remove('out'); } },true);
+    const check=()=>{ if(back.hidden) return; const r=lex.getBoundingClientRect(), inView=r.top<innerHeight*0.85&&r.bottom>innerHeight*0.15;
+      if(inView) seen=true; else if(seen){ back.classList.add('out'); seen=false; setTimeout(()=>{ if(back.classList.contains('out')){ back.hidden=true; back.classList.remove('out'); } },260); } };
+    addEventListener('scroll',check,{passive:true});
+  })();
   // en-tête : le point fait des allers-retours sur la courbe du prix, dans sa plage (comme l'hyperbole de la présentation CLMM)
   (function(){
     const path=document.getElementById('hcPath'), dot=document.getElementById('hcDot'); if(!path||!dot) return;
