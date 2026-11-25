@@ -49,6 +49,10 @@ Mêmes colonnes que les bougies journalières, avec `heure_utc` à la place de `
 
 Un réajustement comprend : retirer la position, récupérer les frais, rééquilibrer les deux jetons par un échange et ouvrir une nouvelle position. On l'estime à environ 700 000 unités de gas sur les pools de type Uniswap v3, et à 3 transactions d'environ 300 000 unités de calcul sur Solana (5 000 lamports par signature plus les frais de priorité). C'est un ordre de grandeur : le coût réel dépend de l'outil utilisé. Sur Robinhood Chain (réseau de couche 2), la petite part payée à Ethereum pour publier les données n'est pas comptée.
 
+## `dvol.csv` : DVOL de Deribit, une ligne par jour
+
+Clôture journalière (UTC) du DVOL, la volatilité implicite à 30 jours annualisée, en % : `dvol_btc` pour le bitcoin et `dvol_eth` pour l'ether. Le premier passage (25 novembre 2026) a repris l'historique depuis le 1er novembre 2023 ; chaque passage met ensuite à jour les derniers jours.
+
 ## `liquidite/<pool>/<date>.json` : répartition de la liquidité
 
 La liquidité active \(L\) par intervalle de prix, entre le prix actuel divisé par 1,5 et le prix actuel multiplié par 1,5. Chaque segment `[tick_bas, tick_haut, prix_bas, prix_haut, L]` donne la liquidité disponible si le prix se trouve dans cet intervalle.

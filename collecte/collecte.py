@@ -8,6 +8,7 @@ Lancé une fois par jour. Pour chaque pool, le script :
   4. met à jour les bougies horaires des dernières heures                                   -> donnees/bougies_horaires/<id>.csv
   5. relève le compteur des frais de la pool (feeGrowthGlobal) dans le relevé instantané
   6. estime le coût d'un réajustement de position (gas) sur chaque réseau                    -> donnees/gas.csv
+  7. met à jour le DVOL de Deribit (volatilité implicite à 30 jours du BTC et de l'ETH)       -> donnees/dvol.csv
 
 Sources : GeckoTerminal (bougies, volume, TVL), le contrat de la pool lu directement sur sa blockchain
 (prix, tick, L, répartition), et l'API de Raydium pour la répartition de la pool Solana.
@@ -254,6 +255,31 @@ def ajout_releve(pid, ligne):
     with open(chemin, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=champs, restval=""); w.writeheader(); w.writerows(sorted(lignes, key=lambda r: r["horodatage_utc"]))
 
+# ---------- DVOL de Deribit ----------
+def maj_dvol(maintenant):
+    chemin = os.path.join(DON, "dvol.csv"); data = {}
+    premier = not os.path.exists(chemin)
+    if not premier:
+        with open(chemin, newline="") as f:
+            for r in csv.DictReader(f): data[r["date"]] = r
+    fin = int(maintenant.timestamp() * 1000)
+    debut = int(dt.datetime(2023, 11, 1, tzinfo=dt.timezone.utc).timestamp() * 1000) if premier else fin - 12 * 86400000
+    jour = maintenant.date().isoformat()
+    for cur in ("BTC", "ETH"):
+        s = debut
+        while s < fin:
+            e = min(fin, s + 500 * 86400000)
+            rep = http_json(f"https://www.deribit.com/api/v2/public/get_volatility_index_data?currency={cur}&start_timestamp={s}&end_timestamp={e}&resolution=1D")
+            for t, o, h, l, c in rep["result"]["data"]:
+                d = dt.datetime.fromtimestamp(t / 1000, dt.timezone.utc).date().isoformat()
+                if d >= jour: continue            # la journée en cours n'est pas terminée
+                data.setdefault(d, {"date": d})[f"dvol_{cur.lower()}"] = f"{c:.2f}"
+            s = e; time.sleep(1)
+    with open(chemin, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["date", "dvol_btc", "dvol_eth"], restval=""); w.writeheader()
+        for d in sorted(data): w.writerow(data[d])
+    return data[max(data)]
+
 def main():
     maintenant = dt.datetime.now(dt.timezone.utc)
     jour = maintenant.date().isoformat()
@@ -285,6 +311,9 @@ def main():
     if all(k in prix_ref for k in ("eth", "hype", "sol")):
         for l in releve_gas(maintenant, prix_ref): bilan.append(f"gas {l['reseau']} : {l['prix_gas']} {l['unite']} -> réajustement ≈ {l['cout_reajustement_usd']} $")
     else: bilan.append("gas : non relevé (prix ETH, HYPE ou SOL manquant)")
+    try:
+        d = maj_dvol(maintenant); bilan.append(f"DVOL du {d['date']} : BTC {d.get('dvol_btc')} · ETH {d.get('dvol_eth')}")
+    except Exception as e: bilan.append(f"DVOL : ÉCHEC ({e})")
     log("\n".join(bilan))
     return 0 if not any("ÉCHEC" in b for b in bilan) else 1
 
