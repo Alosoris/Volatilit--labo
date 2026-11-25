@@ -5,6 +5,9 @@ Lancé une fois par jour. Pour chaque pool, le script :
   1. met à jour les bougies journalières (prix O/H/L/C et volume en USD) des derniers jours  -> donnees/bougies/<id>.csv
   2. ajoute un relevé instantané : prix, tick, L actif, TVL, volume 24 h                      -> donnees/releves/<id>.csv
   3. enregistre la répartition de la liquidité autour du prix (de ÷1,5 à ×1,5)                -> donnees/liquidite/<id>/<date>.json
+  4. met à jour les bougies horaires des dernières heures                                   -> donnees/bougies_horaires/<id>.csv
+  5. relève le compteur des frais de la pool (feeGrowthGlobal) dans le relevé instantané
+  6. estime le coût d'un réajustement de position (gas) sur chaque réseau                    -> donnees/gas.csv
 
 Sources : GeckoTerminal (bougies, volume, TVL), le contrat de la pool lu directement sur sa blockchain
 (prix, tick, L, répartition), et l'API de Raydium pour la répartition de la pool Solana.
@@ -84,10 +87,13 @@ def prix_tick(pool, tick):
 
 def etat_evm(pool):
     a = pool["adresse"]
-    slot0, liq, esp = eth_calls(pool, [(a, "0x3850c7bd"), (a, "0x1a686502"), (a, "0xd0c93a7c")])
+    slot0, liq, esp, fg0, fg1, frais = eth_calls(pool, [(a, "0x3850c7bd"), (a, "0x1a686502"), (a, "0xd0c93a7c"),
+                                                        (a, "0xf3058399"), (a, "0x46141319"), (a, "0xddca3f43")])
     corps = slot0[2:]
     tick = i_signe(corps[64:128], 24)
-    return dict(tick=tick, L=int(liq, 16), espacement=int(esp, 16))
+    # feeGrowthGlobal0X128 / 1X128 : frais cumulés par unité de liquidité depuis la création de la pool (format Q128)
+    return dict(tick=tick, L=int(liq, 16), espacement=int(esp, 16), fg0=int(fg0, 16), fg1=int(fg1, 16), q=128,
+                frais_ppm=int(frais, 16))
 
 def repartition_evm(pool, etat):
     """Liquidité active par intervalle de ticks, entre P/1,5 et P×1,5, reconstruite à partir des ticks initialisés."""
@@ -134,8 +140,19 @@ def etat_raydium(pool):
                     "params": [pool["adresse"], {"encoding": "base64"}]})
     b = base64.b64decode(rep["result"]["value"]["data"][0])
     # PoolState Raydium CLMM : tick_spacing u16 @235, liquidity u128 @237, sqrt_price_x64 u128 @253, tick_current i32 @269
+    # fee_growth_global_0_x64 u128 @277, fee_growth_global_1_x64 u128 @293 (format Q64) ; taux de frais lu dans l'amm_config
+    cfg = http_json("https://api.mainnet-beta.solana.com", {"jsonrpc": "2.0", "id": 1, "method": "getAccountInfo",
+                    "params": [base58(b[9:41]), {"encoding": "base64"}]})
+    c = base64.b64decode(cfg["result"]["value"]["data"][0])
     return dict(espacement=struct.unpack_from("<H", b, 235)[0], L=int.from_bytes(b[237:253], "little"),
-                tick=struct.unpack_from("<i", b, 269)[0])
+                tick=struct.unpack_from("<i", b, 269)[0], fg0=int.from_bytes(b[277:293], "little"),
+                fg1=int.from_bytes(b[293:309], "little"), q=64, frais_ppm=struct.unpack_from("<I", c, 47)[0])
+
+def base58(octets):
+    alpha = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    n = int.from_bytes(octets, "big"); out = ""
+    while n: n, r = divmod(n, 58); out = alpha[r] + out
+    return "1" * (len(octets) - len(octets.lstrip(b"\0"))) + out
 
 def repartition_raydium(pool, etat):
     rep = http_json("https://api-v3.raydium.io/pools/line/position?id=" + pool["adresse"])
@@ -157,7 +174,60 @@ def gecko(pool):
     ohlc = http_json(f"{base}/ohlcv/day?aggregate=1&limit={lim}&currency=token&token={pool['cote_gt']}")["data"]["attributes"]["ohlcv_list"]; time.sleep(2.5)
     vol = http_json(f"{base}/ohlcv/day?aggregate=1&limit={lim}&currency=usd&token={pool['cote_gt']}")["data"]["attributes"]["ohlcv_list"]; time.sleep(2.5)
     vmap = {r[0]: r[5] for r in vol}
-    return info, [(r[0], r[1], r[2], r[3], r[4], vmap.get(r[0])) for r in ohlc]
+    limh = 48 if os.path.exists(os.path.join(DON, "bougies_horaires", pool["id"] + ".csv")) else 1000
+    oh = http_json(f"{base}/ohlcv/hour?aggregate=1&limit={limh}&currency=token&token={pool['cote_gt']}")["data"]["attributes"]["ohlcv_list"]; time.sleep(2.5)
+    vh = http_json(f"{base}/ohlcv/hour?aggregate=1&limit={limh}&currency=usd&token={pool['cote_gt']}")["data"]["attributes"]["ohlcv_list"]; time.sleep(2.5)
+    vhm = {r[0]: r[5] for r in vh}
+    return info, [(r[0], r[1], r[2], r[3], r[4], vmap.get(r[0])) for r in ohlc], [(r[0], r[1], r[2], r[3], r[4], vhm.get(r[0])) for r in oh]
+
+def maj_horaires(pid, lignes, maintenant):
+    chemin = os.path.join(DON, "bougies_horaires", pid + ".csv"); os.makedirs(os.path.dirname(chemin), exist_ok=True)
+    data = {}
+    if os.path.exists(chemin):
+        with open(chemin, newline="") as f:
+            for r in csv.DictReader(f): data[r["heure_utc"]] = r
+    for ts, o, h, l, c, v in lignes:
+        if ts + 3600 > maintenant.timestamp(): continue          # l'heure en cours n'est pas terminée
+        k = dt.datetime.fromtimestamp(ts, dt.timezone.utc).strftime("%Y-%m-%dT%H:00Z")
+        data[k] = dict(heure_utc=k, open=f"{o:.8g}", high=f"{h:.8g}", low=f"{l:.8g}", close=f"{c:.8g}", volume_usd=f"{v:.2f}" if v is not None else "")
+    with open(chemin, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["heure_utc", "open", "high", "low", "close", "volume_usd"]); w.writeheader()
+        for k in sorted(data): w.writerow(data[k])
+
+# ---------- coût d'un réajustement (gas) ----------
+# Estimation : retirer la position, récupérer les frais, rééquilibrer les deux jetons par un échange et ouvrir une nouvelle
+# position (nouveau NFT) ≈ 700 000 unités de gas sur une pool de type Uniswap v3 ; sur Solana, ≈ 3 transactions.
+GAS_REAJUSTEMENT = 700_000
+RESEAUX = [("ethereum", "https://ethereum-rpc.publicnode.com", "ETH", "eth"),
+           ("hyperevm", "https://rpc.hyperliquid.xyz/evm", "HYPE", "hype"),
+           ("robinhood", "https://rpc.mainnet.chain.robinhood.com", "ETH", "eth")]
+
+def releve_gas(maintenant, prix):
+    lignes = []
+    for nom, url, jeton, ref in RESEAUX:
+        try:
+            g = int(http_json(url, {"jsonrpc": "2.0", "id": 1, "method": "eth_gasPrice", "params": []})["result"], 16)
+            cout = g * GAS_REAJUSTEMENT / 1e18 * prix[ref]
+            lignes.append(dict(reseau=nom, prix_gas=f"{g/1e9:.6g}", unite="gwei", jeton=jeton, prix_jeton_usd=f"{prix[ref]:.6g}",
+                               unites_estimees=GAS_REAJUSTEMENT, cout_reajustement_usd=f"{cout:.4f}"))
+        except Exception as e: log("   gas", nom, e)
+        time.sleep(1)
+    try:
+        pf = http_json("https://api.mainnet-beta.solana.com", {"jsonrpc": "2.0", "id": 1, "method": "getRecentPrioritizationFees",
+                       "params": [["CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"]]})["result"]
+        v = sorted(x["prioritizationFee"] for x in pf); med = v[len(v) // 2] if v else 0     # micro-lamports par unité de calcul
+        lamports = 3 * (5000 + med * 300_000 / 1e6)                                            # 3 transactions, ≈ 300 000 unités de calcul
+        lignes.append(dict(reseau="solana", prix_gas=f"{med:.6g}", unite="micro-lamports/CU (priorité, médiane)", jeton="SOL",
+                           prix_jeton_usd=f"{prix['sol']:.6g}", unites_estimees="3 transactions", cout_reajustement_usd=f"{lamports/1e9*prix['sol']:.4f}"))
+    except Exception as e: log("   gas solana", e)
+    chemin = os.path.join(DON, "gas.csv"); champs = ["horodatage_utc", "reseau", "prix_gas", "unite", "jeton", "prix_jeton_usd", "unites_estimees", "cout_reajustement_usd"]
+    jour = maintenant.strftime("%Y-%m-%d"); anciennes = []
+    if os.path.exists(chemin):
+        with open(chemin, newline="") as f: anciennes = [r for r in csv.DictReader(f) if r["horodatage_utc"][:10] != jour]
+    for l in lignes: l["horodatage_utc"] = maintenant.strftime("%Y-%m-%dT%H:%M:%SZ")
+    with open(chemin, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=champs); w.writeheader(); w.writerows(anciennes + lignes)
+    return lignes
 
 # ---------- écriture ----------
 def maj_bougies(pid, lignes, aujourdhui):
@@ -176,30 +246,32 @@ def maj_bougies(pid, lignes, aujourdhui):
 
 def ajout_releve(pid, ligne):
     chemin = os.path.join(DON, "releves", pid + ".csv"); os.makedirs(os.path.dirname(chemin), exist_ok=True)
-    champs = ["horodatage_utc", "prix", "tick", "L", "tvl_usd", "volume_24h_usd", "prix_geckoterminal"]
+    champs = ["horodatage_utc", "prix", "tick", "L", "tvl_usd", "volume_24h_usd", "prix_geckoterminal", "frais_ppm", "fee_growth_0", "fee_growth_1", "format_fee_growth"]
     lignes = []
     if os.path.exists(chemin):
         with open(chemin, newline="") as f: lignes = [r for r in csv.DictReader(f) if r["horodatage_utc"][:10] != ligne["horodatage_utc"][:10]]
     lignes.append(ligne)
     with open(chemin, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=champs); w.writeheader(); w.writerows(sorted(lignes, key=lambda r: r["horodatage_utc"]))
+        w = csv.DictWriter(f, fieldnames=champs, restval=""); w.writeheader(); w.writerows(sorted(lignes, key=lambda r: r["horodatage_utc"]))
 
 def main():
     maintenant = dt.datetime.now(dt.timezone.utc)
     jour = maintenant.date().isoformat()
-    bilan = []
+    bilan = []; prix_ref = {}
     for pool in POOLS:
         pid = pool["id"]; log("==", pool["nom"])
         try:
-            info, bougies = gecko(pool)
+            info, bougies, horaires = gecko(pool)
             maj_bougies(pid, bougies, jour)
+            maj_horaires(pid, horaires, maintenant)
             etat = etat_raydium(pool) if pool["type"] == "raydium" else etat_evm(pool)
-            prix = prix_tick(pool, etat["tick"])
+            prix = prix_tick(pool, etat["tick"]); prix_ref[pid] = prix
             segs = repartition_raydium(pool, etat) if pool["type"] == "raydium" else repartition_evm(pool, etat)
             px_gt = float(info["base_token_price_quote_token"] if pool["cote_gt"] == "base" else info["quote_token_price_base_token"])
             ajout_releve(pid, dict(horodatage_utc=maintenant.strftime("%Y-%m-%dT%H:%M:%SZ"), prix=f"{prix:.8g}", tick=etat["tick"], L=etat["L"],
                                    tvl_usd=f"{float(info['reserve_in_usd']):.2f}", volume_24h_usd=f"{float(info['volume_usd']['h24']):.2f}",
-                                   prix_geckoterminal=f"{px_gt:.8g}"))
+                                   prix_geckoterminal=f"{px_gt:.8g}", frais_ppm=etat["frais_ppm"], fee_growth_0=etat["fg0"],
+                                   fee_growth_1=etat["fg1"], format_fee_growth=f"Q{etat['q']}"))
             dossier = os.path.join(DON, "liquidite", pid); os.makedirs(dossier, exist_ok=True)
             with open(os.path.join(dossier, jour + ".json"), "w") as f:
                 json.dump(dict(pool=pool["nom"], adresse=pool["adresse"], horodatage_utc=maintenant.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -210,6 +282,9 @@ def main():
             if ecart > 0.02: bilan.append(f"  ATTENTION : écart de prix supérieur à 2 % pour {pool['nom']}")
         except Exception as e:
             bilan.append(f"{pool['nom']} : ÉCHEC ({e})")
+    if all(k in prix_ref for k in ("eth", "hype", "sol")):
+        for l in releve_gas(maintenant, prix_ref): bilan.append(f"gas {l['reseau']} : {l['prix_gas']} {l['unite']} -> réajustement ≈ {l['cout_reajustement_usd']} $")
+    else: bilan.append("gas : non relevé (prix ETH, HYPE ou SOL manquant)")
     log("\n".join(bilan))
     return 0 if not any("ÉCHEC" in b for b in bilan) else 1
 

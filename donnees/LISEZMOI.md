@@ -25,8 +25,29 @@ Source : GeckoTerminal. Le premier passage (24 novembre 2026) a repris les 180 j
 | `tvl_usd` | valeur totale déposée dans la pool (TVL), en dollars (GeckoTerminal) |
 | `volume_24h_usd` | volume des 24 dernières heures, en dollars (GeckoTerminal) |
 | `prix_geckoterminal` | prix affiché par GeckoTerminal au même moment, pour vérification |
+| `frais_ppm` | taux de frais de la pool, en millionièmes (500 = 0,05 %) |
+| `fee_growth_0`, `fee_growth_1` | compteurs de frais de la pool (`feeGrowthGlobal`) : frais cumulés depuis la création de la pool, par unité de liquidité, en jeton 0 et en jeton 1 (relevés depuis le 25 novembre 2026) |
+| `format_fee_growth` | format des compteurs : `Q128` (pools de type Uniswap v3) ou `Q64` (Raydium) |
+
+**Calculer les frais d'une journée.** La différence entre deux relevés, divisée par \(2^{128}\) (ou \(2^{64}\) pour Raydium), donne les frais gagnés entre les deux relevés par unité de \(L\), en unités brutes du jeton (sans les décimales). Une position de liquidité \(L_{\text{pos}}\) restée dans la plage pendant tout l'intervalle a gagné \(L_{\text{pos}} \times \Delta\text{fee\_growth} / 2^{128}\) de chaque jeton.
 
 \(L\) est exprimé dans les unités brutes du contrat (sans les décimales des jetons), comme dans Uniswap v3.
+
+## `bougies_horaires/<pool>.csv` : une ligne par heure terminée (UTC)
+
+Mêmes colonnes que les bougies journalières, avec `heure_utc` à la place de `date`. Le premier passage (25 novembre 2026) a repris les 1 000 dernières heures disponibles (environ 41 jours) ; chaque passage met ensuite à jour les 48 dernières heures.
+
+## `gas.csv` : coût estimé d'un réajustement, un relevé par réseau et par jour
+
+| Colonne | Contenu |
+|---|---|
+| `reseau` | `ethereum` (pools ETH, WBTC), `hyperevm` (HYPE), `robinhood` (QQQ), `solana` (SOL) |
+| `prix_gas` | prix du gas au moment du relevé (en gwei ; pour Solana, frais de priorité médians en micro-lamports par unité de calcul) |
+| `prix_jeton_usd` | prix du jeton qui paie le gas (ETH, HYPE ou SOL), tiré des pools |
+| `unites_estimees` | quantité de gas supposée pour un réajustement |
+| `cout_reajustement_usd` | coût estimé d'un réajustement, en dollars |
+
+Un réajustement comprend : retirer la position, récupérer les frais, rééquilibrer les deux jetons par un échange et ouvrir une nouvelle position. On l'estime à environ 700 000 unités de gas sur les pools de type Uniswap v3, et à 3 transactions d'environ 300 000 unités de calcul sur Solana (5 000 lamports par signature plus les frais de priorité). C'est un ordre de grandeur : le coût réel dépend de l'outil utilisé. Sur Robinhood Chain (réseau de couche 2), la petite part payée à Ethereum pour publier les données n'est pas comptée.
 
 ## `liquidite/<pool>/<date>.json` : répartition de la liquidité
 
