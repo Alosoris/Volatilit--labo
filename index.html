@@ -1157,6 +1157,10 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .v-switch input:focus-visible+.v-sw{outline:2px solid var(--accent);outline-offset:2px}
 .bt-tab.bt-5 .bt-r{grid-template-columns:minmax(110px,1fr) minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.2fr) minmax(0,1fr)}
 .bt-v.bt-best{color:var(--accent)}
+.bt-empty{grid-column:2/-1;align-self:center;font-size:.86rem;color:var(--muted);line-height:1.5}
+.bt-go{font:inherit;font-weight:600;color:var(--accent);background:var(--accent-soft);border:0;border-radius:99px;padding:3px 11px;margin:0 2px;cursor:pointer}
+.bt-go:hover{filter:brightness(.96)}
+@media (max-width:640px){.bt-empty{grid-column:1/-1}}
 .sc-panel{margin:1.2rem 0 1.4rem;display:flex;flex-direction:column;gap:14px}
 .sc-ctl{display:grid;grid-template-columns:1fr;gap:12px}
 .sc-ctl .ctl{margin:0}
@@ -2359,7 +2363,9 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     const scs=EST.map(e=>bt.cur[e.k].score).filter(isFinite), mxS=scs.length?Math.max(...scs):1;
     $('vBtStats').innerHTML='<div class="bt-tab bt-5" role="table"><div class="bt-r bt-head" role="row"><span role="columnheader">Estimateur</span><span role="columnheader">'+(S.reb?'Plages quittées avant T':'Plages quittées')+' <em>(visé : '+pc(S.p,0)+')</em></span><span role="columnheader">Largeur moyenne</span><span role="columnheader">Temps dans la plage</span><span role="columnheader">Score d\'efficacité <em>(v2 = 1)</em></span></div>'+EST.map(e=>{
       const c=bt.cur[e.k], best=isFinite(c.score)&&c.score===mxS&&scs.length>1, d=c.r-S.p, st=!isFinite(d)?'':Math.abs(d)<=0.05?'ok':d>0?'hi':'lo', tag={ok:'proche du risque visé',hi:'plus que prévu',lo:'moins que prévu'}[st]||'';
-      return '<div class="bt-r'+(e.k===S.est?' sel':'')+'" role="row"><span class="bt-n" role="cell"><i class="v-dot" style="background:var('+e.c+')"></i>'+e.n+'</span>'
+      const nameCell='<span class="bt-n" role="cell"><i class="v-dot" style="background:var('+e.c+')"></i>'+e.n+'</span>';
+      if(!c.nb) return '<div class="bt-r'+(e.k===S.est?' sel':'')+'" role="row">'+nameCell+'<span class="bt-empty" role="cell">'+emptyMsg(e.k)+'</span></div>';
+      return '<div class="bt-r'+(e.k===S.est?' sel':'')+'" role="row">'+nameCell
         +'<span role="cell"><em class="bt-ml">Plages quittées</em><b class="bt-v bt-'+st+'">'+pc(c.r)+'</b><span class="bt-bar"><i style="width:'+(isFinite(c.r)?Math.min(100,c.r/mxR*100):0)+'%"></i><u style="left:'+(S.p/mxR*100)+'%" title="risque visé"></u></span><small>'+(c.nb?c.out+' sur '+c.nb+' plages · '+tag:'aucune plage testable : fenêtre trop longue pour cet historique')+'</small></span>'
         +'<span role="cell"><em class="bt-ml">Largeur moyenne</em><b class="bt-v">± '+f(c.width*100,1)+' %</b><small>autour du prix de départ</small></span>'
         +'<span role="cell"><em class="bt-ml">Temps dans la plage</em><b class="bt-v">'+pc(c.inside)+'</b><span class="bt-bar bt-in"><i style="width:'+(isFinite(c.inside)?c.inside*100:0)+'%"></i></span><small>des clôtures dans la plage</small></span>'
@@ -2384,6 +2390,13 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
     ].join('');
   }
   const HZ = {1:'1 jour',7:'1 semaine',30:'1 mois'};
+  // message quand la fenêtre (ou l'horizon) dépasse l'historique disponible
+  function emptyMsg(k){
+    const n=M.s.n, h=hzSteps(), need=(k==='ew'?30:M.w)+h+1, pl=D[S.pool];
+    if(k==='dv') return 'Pas assez de valeurs du DVOL sur cette période.';
+    if(S.src==='on' && pl.lg) return 'Historique de la pool on-chain trop court ('+n+' bougies) pour une fenêtre de '+M.w+' bougies et un horizon de '+h+(h>1?' bougies':' bougie')+'. <button type="button" class="bt-go" data-go-src="lg">Essayer avec « Historique long »</button> ou choisir une fenêtre plus courte.';
+    return 'Historique trop court ('+n+' bougies) : il en faut au moins '+need+' pour une fenêtre de '+M.w+' et un horizon de '+h+'. Choisissez une fenêtre plus courte.';
+  }
   function syncButtons(){
     const n=series(S.pool,S.src).n;
     $('vPool').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===S.pool));
@@ -2423,6 +2436,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   $('vcCal').addEventListener('pointermove',e=>{ if(!inv.cal) return; const r=$('vcCal').getBoundingClientRect(); hovCal=inv.cal(e.clientX-r.left); redraw(); });
   $('vcCal').addEventListener('pointerleave',()=>{ hovCal=null; redraw(); });
   // depuis les fiches des pools : ouvrir la pool dans le laboratoire
+  document.addEventListener('click',e=>{ const g=e.target.closest&&e.target.closest('[data-go-src]'); if(g){ S.src=g.dataset.goSrc; hovI=null; update(); } });
   document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('[data-open-pool]'); if(!a) return; const i=D.findIndex(p=>p.id===a.dataset.openPool); if(i>=0){ S.pool=i; hovI=null; update(); } });
   const last=D[0].on; { const t=Date.parse(last.start+'T00:00:00Z')+86400000*(last.c.length-1); $('vDate').textContent=dLong(new Date(t)); }
   ['vcPrice','vcRisk','vcBt','vcCal'].forEach(id=>new ResizeObserver(redraw).observe($(id)));
