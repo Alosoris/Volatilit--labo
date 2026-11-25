@@ -2059,10 +2059,10 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
   // renvois « chapitre 5 », « (6.3) »… : transformés en liens vers le chapitre ou la section (aussi pour le texte écrit par le labo)
   (function(){
     const CH={}; document.querySelectorAll('nav.side > a[href^="#"]').forEach(a=>{ const n=a.querySelector('b'); if(n) CH[n.textContent.trim()]=a.getAttribute('href'); });
-    const RE=/(chapitres?\s)(\d{1,2})((?:\s(?:et|à)\s)(\d{1,2}))?|\b(\d{1,2})\.(\d)\b/g, SKIP='a,script,style,.katex,h1,h2,h3,nav,.chap-n,.tag,canvas,button,input,label,svg,figcaption,mjx-container,.MathJax,.no-ref';
+    const RE=/(chapitres?\s)(\d{1,2})((?:\s(?:et|à)\s)(\d{1,2}))?|\b(\d{1,2})\.(\d)\b/g, SKIP='a,script,style,.katex,h1,h2,h3,nav,.chap-n,.tag,canvas,button,input,label,svg,figcaption,mjx-container,.MathJax,.math,.no-ref';
     const mk=(href,txt)=>{ const a=document.createElement('a'); a.className='chref'; a.href=href; a.textContent=txt; return a; };
     function linkify(root){ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT), list=[]; let n;
-      while(n=w.nextNode()){ const p=n.parentElement; if(!p||p.closest(SKIP)) continue; RE.lastIndex=0; if(RE.test(n.textContent)) list.push(n); }
+      while(n=w.nextNode()){ const p=n.parentElement; if(!p||p.closest(SKIP)||n.textContent.indexOf('\\')>=0) continue; RE.lastIndex=0; if(RE.test(n.textContent)) list.push(n); }
       list.forEach(n=>{ const t=n.textContent, frag=document.createDocumentFragment(); let last=0, m, hit=false; RE.lastIndex=0;
         while(m=RE.exec(t)){
           if(m[2]){ const h1=CH[m[2]]; if(!h1) continue; frag.append(t.slice(last,m.index)+m[1]); frag.append(mk(h1,m[2]));
@@ -2070,7 +2070,10 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
             last=m.index+m[0].length; hit=true; }
           else { const id='sec-'+m[5]+'-'+m[6]; if(!document.getElementById(id)) continue; frag.append(t.slice(last,m.index)); frag.append(mk('#'+id,m[5]+'.'+m[6])); last=m.index+m[0].length; hit=true; } }
         if(!hit) return; frag.append(t.slice(last)); n.replaceWith(frag); }); }
-    linkify(document.querySelector('.content')||document.body);
+    // les formules sont encore du texte LaTeX tant que MathJax ne les a pas affichées : on les saute, puis on repasse après MathJax
+    const all=()=>linkify(document.querySelector('.content')||document.body);
+    all(); [1500,4000,8000].forEach(t=>setTimeout(all,t));
+    (function wait(){ const M=window.MathJax; if(M&&M.startup&&M.startup.promise) M.startup.promise.then(all); else setTimeout(wait,200); })();
     const lab=document.getElementById('vlab'); let busy=false;
     if(lab) new MutationObserver(()=>{ if(busy) return; busy=true; requestAnimationFrame(()=>{ linkify(lab); busy=false; }); }).observe(lab,{childList:true,subtree:true,characterData:true});
   })();
