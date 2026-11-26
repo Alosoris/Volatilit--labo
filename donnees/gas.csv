@@ -3,3 +3,7 @@ horodatage_utc,reseau,prix_gas,unite,jeton,prix_jeton_usd,unites_estimees,cout_r
 2026-11-25T17:41:28Z,hyperevm,0.1,gwei,HYPE,60.1353,700000,0.0042
 2026-11-25T17:41:28Z,robinhood,0.02048,gwei,ETH,1675.27,700000,0.0240
 2026-11-25T17:41:28Z,solana,0,"micro-lamports/CU (priorité, médiane)",SOL,69.1922,3 transactions,0.0010
+2026-11-26T01:23:51Z,ethereum,0.0626939,gwei,ETH,1702.97,700000,0.0747
+2026-11-26T01:23:51Z,hyperevm,0.1,gwei,HYPE,61.8367,700000,0.0043
+2026-11-26T01:23:51Z,robinhood,0.020102,gwei,ETH,1702.97,700000,0.0240
+2026-11-26T01:23:51Z,solana,0,"micro-lamports/CU (priorité, médiane)",SOL,70.8304,3 transactions,0.0011
