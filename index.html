@@ -1268,6 +1268,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
       <h3 id="sec-2-1">2.1 Un écart-type</h3>
       <p>Avec \(n\) rendements journaliers \(r_1, \dots, r_n\) :</p>
       <div class="math">\[ \bar r = \frac{1}{n}\sum_{t=1}^{n} r_t, \qquad \sigma_{\text{jour}} = \sqrt{\frac{1}{n-1}\sum_{t=1}^{n}\left(r_t - \bar r\right)^2} \]</div><p class="f-leg">\(n\) : nombre de rendements · \(r_t\) : rendement du jour \(t\) · \(\bar r\) : moyenne des rendements · \(\sigma_{\text{jour}}\) : volatilité journalière</p>
+      <p>On met les écarts au carré parce que, sans cela, les écarts positifs et négatifs s'annuleraient : leur somme vaut toujours 0. Le carré rend aussi les variances additives d'un jour à l'autre, ce qui donne la règle \(\sqrt{T}\) du <a class="chref" href="#sec-2-2">2.2</a>. La racine carrée ramène ensuite le résultat dans l'unité des rendements : des %, et non des %².</p>
       <p>On divise par \(n - 1\) et non par \(n\) parce que \(\bar r\) est lui-même calculé à partir des données ; cette correction rend l'estimation juste en moyenne.</p>
 
       <h3 id="sec-2-2">2.2 Ramener la volatilité à l'année</h3>
