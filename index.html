@@ -1157,6 +1157,8 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .v-switch input:focus-visible+.v-sw{outline:2px solid var(--accent);outline-offset:2px}
 .bt-tab.bt-5 .bt-r{grid-template-columns:minmax(110px,1fr) minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.2fr) minmax(0,1fr)}
 .bt-v.bt-best{color:var(--accent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side-ind::after{display:none}}
+:root[data-theme="dark"] .side-ind::after{display:none}
 button.lex-back.lex-back,button.lex-back.lex-back:hover{--lg-top:rgba(255,255,255,.10);--lg-bot:rgba(255,255,255,.04);--lg-hi:rgba(255,255,255,.85);--lg-rim:rgba(255,255,255,.95);--lg-edge:rgba(245,15,180,.20);--lg-glow:rgba(245,15,180,.08);--lg-shadow:rgba(140,20,105,.22);
   background:radial-gradient(160px circle at var(--mx) var(--my),var(--lg-hi),transparent 60%),linear-gradient(180deg,var(--lg-top),var(--lg-bot))!important;
   -webkit-backdrop-filter:blur(1.5px) saturate(150%) brightness(1.04)!important;backdrop-filter:blur(1.5px) saturate(150%) brightness(1.04)!important;
