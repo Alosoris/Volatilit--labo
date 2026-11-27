@@ -1147,7 +1147,7 @@ nav.side .side-title{color:var(--accent)!important;font-family:"Inter Tight","In
 .chart-card .v-h4{font-size:1rem;margin:.9rem 0 0}
 .stat.v-sel{box-shadow:inset 0 0 0 2px var(--accent)}
 .stat .v#vsE{color:var(--accent)}
-:root{--ewm:#6b3fe0;--dvol:#0e9f8e}:root[data-theme=dark]{--ewm:#a98bff;--dvol:#2dd4bf}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ewm:#a98bff;--dvol:#2dd4bf}}
+:root{--ewm:#6b3fe0;--dvol:#0e9f8e;--garch:#2563c9}:root[data-theme=dark]{--ewm:#a98bff;--dvol:#2dd4bf;--garch:#6fa8ff}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ewm:#a98bff;--dvol:#2dd4bf;--garch:#6fa8ff}}
 .v-switch{display:flex;align-items:center;gap:12px;margin:.6rem 0 .4rem;cursor:pointer;font-size:.9rem;line-height:1.4}
 .v-switch input{position:absolute;opacity:0;width:1px;height:1px}
 .v-sw{flex:none;position:relative;width:46px;height:26px;border-radius:99px;background:rgba(127,127,127,.28);transition:background .2s}
@@ -1298,7 +1298,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
     <div class="chap-n"><span>Chapitre</span>3</div>
     <div class="prose">
       <h2>Les estimateurs</h2>
-      <p class="chap-intro">Les quatre <a class="lexref" href="#lex-estimateur" title="Formule qui donne une valeur approchée d'une grandeur inconnue (ici σ) à partir des données.">estimateurs</a> de ce chapitre utilisent les mêmes bougies, mais pas les mêmes informations : les clôtures seules (<a class="chref" href="#sec-3-1">3.1</a>), les extrêmes de chaque jour (<a class="chref" href="#sec-3-2">3.2</a>), les quatre prix (<a class="chref" href="#sec-3-3">3.3</a>), ou les clôtures avec une mémoire qui s'efface (<a class="chref" href="#sec-3-4">3.4</a>). Ces quatre-là mesurent le passé ; le DVOL (<a class="chref" href="#sec-3-5">3.5</a>) donne au contraire la volatilité que le marché des options attend pour les 30 prochains jours.</p>
+      <p class="chap-intro">Les <a class="lexref" href="#lex-estimateur" title="Formule qui donne une valeur approchée d'une grandeur inconnue (ici σ) à partir des données.">estimateurs</a> de ce chapitre utilisent les mêmes bougies, mais pas les mêmes informations : les clôtures seules (<a class="chref" href="#sec-3-1">3.1</a>), les extrêmes de chaque jour (<a class="chref" href="#sec-3-2">3.2</a>), les quatre prix (<a class="chref" href="#sec-3-3">3.3</a>), ou les clôtures avec une mémoire qui s'efface (<a class="chref" href="#sec-3-4">3.4</a>), à laquelle GARCH ajoute un retour vers la volatilité moyenne (<a class="chref" href="#sec-3-5">3.5</a>). Ces cinq-là mesurent le passé ; le DVOL (<a class="chref" href="#sec-3-6">3.6</a>) donne au contraire la volatilité que le marché des options attend pour les 30 prochains jours.</p>
 
       <h3 id="sec-3-1">3.1 Close-to-close</h3>
       <p>C'est la méthode la plus simple : on applique directement la formule du <a class="chref" href="#sec-2-1">2.1</a> aux rendements calculés avec les prix de clôture.</p>
@@ -1341,8 +1341,26 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
         <div class="math deriv">\[ \begin{aligned} \sigma_{20}^2 &= 0{,}94 \cdot (0{,}04)^2 + 0{,}06 \cdot (0{,}07945)^2 \\[3pt] &= 0{,}94 \cdot 0{,}0016 + 0{,}06 \cdot 0{,}0063123 && \small\text{on calcule les carrés} \\[3pt] &= 0{,}0015040 + 0{,}0003787 = 0{,}0018827 && \small\text{on multiplie puis on additionne} \\[3pt] \sigma_{20} &= \sqrt{0{,}0018827} \approx 4{,}34\,\% \text{ par jour, soit } 82{,}9\,\% \text{ par an} \end{aligned} \]</div><p class="f-leg">\(\sigma_{20}\) : EWMA au soir du 20 novembre · \(0{,}04\) : EWMA de la veille · \(-0{,}07945\) : rendement du 20 novembre · \(\lambda = 0{,}94\)</p>
         Une seule journée agitée fait monter l'estimation de 4 % à 4,34 % par jour. Si les jours suivants sont calmes, elle redescendra peu à peu.</div>
       <div class="box concret"><span class="lbl">Concrètement · quatre estimateurs, quatre points de vue</span><strong>Close-to-close</strong> ne voit que les clôtures. <strong>Parkinson</strong> voit les extrêmes de chaque jour, ce qui fait sortir une position de sa plage. <strong>Garman-Klass</strong> combine les extrêmes et le mouvement net. <strong>EWMA</strong> donne plus de poids aux jours récents et réagit vite quand le marché change de régime. Sur la semaine du 17 au 21 novembre, les trois premiers donnent respectivement 82 %, 92 % et 97 % par an ; l'EWMA dépend de son point de départ.</div>
-      <h3 id="sec-3-5">3.5 DVOL : la volatilité attendue par le marché</h3>
-      <p>Les quatre estimateurs précédents regardent les prix passés. Le <strong><a class="lexref" href="#lex-dvol" title="Indice de Deribit : volatilité annualisée que le marché des options attend pour les 30 prochains jours, pour le bitcoin ou l'ether.">DVOL</a></strong>, calculé par la plateforme d'options Deribit, mesure au contraire la volatilité que le marché <em>attend</em> pour les 30 prochains jours. Il existe pour le bitcoin et pour l'ether.</p>
+      <h3 id="sec-3-5">3.5 GARCH : une volatilité qui revient vers sa moyenne</h3>
+      <p>L'EWMA suit bien la volatilité récente, mais pour l'avenir elle prévoit que cette volatilité restera la même. Or, après un krach, le marché finit par se calmer, et après une longue période calme, il finit par s'agiter : la volatilité revient vers un niveau moyen. Le modèle <a class="lexref" href="#lex-garch" title="Modèle de Bollerslev (1986) : la variance de demain dépend du dernier rendement, de la variance d'aujourd'hui et d'un niveau de long terme vers lequel elle revient.">GARCH(1,1)</a>, proposé par Tim Bollerslev en 1986, ajoute ce retour à la moyenne :</p>
+      <div class="math">\[ \sigma_t^2 = \omega + \alpha\,r_t^2 + \beta\,\sigma_{t-1}^2, \qquad \omega \gt 0,\ \alpha \ge 0,\ \beta \ge 0,\ \alpha + \beta \lt 1 \]</div><p class="f-leg">\(\sigma_t^2\) : variance prévue pour le lendemain · \(r_t\) : rendement du jour \(t\) · \(\omega\) : constante · \(\alpha\) : réaction au dernier rendement · \(\beta\) : mémoire</p>
+      <p>Comme pour l'EWMA, \(\sigma_t^2\) est la variance prévue pour le lendemain, calculée le soir du jour \(t\). Le terme \(\alpha\,r_t^2\) réagit au dernier rendement, \(\beta\,\sigma_{t-1}^2\) garde la mémoire, et la constante \(\omega\) tire la variance vers son niveau de long terme. L'EWMA est un cas particulier :</p>
+      <div class="math deriv">\[ \begin{aligned} \omega = 0,\ \alpha = 1-\lambda,\ \beta = \lambda \quad\Longrightarrow\quad \sigma_t^2 &= (1-\lambda)\,r_t^2 + \lambda\,\sigma_{t-1}^2 && \small\text{la formule du 3.4} \end{aligned} \]</div><p class="f-leg">\(\lambda\) : paramètre de l'EWMA (3.4)</p>
+      <p>Le niveau de long terme \(\sigma_L^2\) est la variance qui ne change plus d'un jour à l'autre. En moyenne, \(r_t^2\) vaut la variance prévue la veille ; à l'équilibre, on remplace donc \(r_t^2\), \(\sigma_t^2\) et \(\sigma_{t-1}^2\) par \(\sigma_L^2\) :</p>
+      <div class="math deriv">\[ \begin{aligned} \sigma_L^2 &= \omega + \alpha\,\sigma_L^2 + \beta\,\sigma_L^2 && \small\text{la variance ne bouge plus} \\[3pt] \sigma_L^2\,(1 - \alpha - \beta) &= \omega && \small\text{on regroupe les } \sigma_L^2 \\[3pt] \sigma_L^2 &= \frac{\omega}{1 - \alpha - \beta} && \small\text{possible car } \alpha + \beta \lt 1 \end{aligned} \]</div><p class="f-leg">\(\sigma_L^2\) : variance de long terme</p>
+      <p>Pour prévoir plus loin, on remarque que l'écart à ce niveau se réduit d'un facteur \(\alpha + \beta\) chaque jour. En moyenne, le rendement au carré du jour \(t+k\) vaut la variance prévue la veille, \(\sigma_{t+k-1}^2\) :</p>
+      <div class="math deriv">\[ \begin{aligned} \mathbb{E}\!\left[\sigma_{t+k}^2\right] &= \omega + (\alpha + \beta)\,\mathbb{E}\!\left[\sigma_{t+k-1}^2\right] && \small\text{on remplace } r_{t+k}^2 \text{ par sa moyenne} \\[3pt] \mathbb{E}\!\left[\sigma_{t+k}^2\right] - \sigma_L^2 &= (\alpha + \beta)\left(\mathbb{E}\!\left[\sigma_{t+k-1}^2\right] - \sigma_L^2\right) && \small\text{on soustrait } \sigma_L^2 = \omega + (\alpha+\beta)\,\sigma_L^2 \\[3pt] \mathbb{E}\!\left[\sigma_{t+k}^2\right] - \sigma_L^2 &= (\alpha + \beta)^k\left(\sigma_t^2 - \sigma_L^2\right) && \small\text{on recommence } k \text{ fois} \end{aligned} \]</div><p class="f-leg">\(\mathbb{E}\) : moyenne théorique (2.1, 3.2) · \(k\) : nombre de jours après \(t\) · \(\alpha + \beta\) : vitesse du retour à la moyenne (plus elle est proche de 1, plus le retour est lent)</p>
+      <p>Sur un horizon de \(T\) jours, les variances s'additionnent (<a class="chref" href="#sec-2-2">2.2</a>). On additionne donc les prévisions des jours \(t+1\) à \(t+T\), qui utilisent \(\sigma_t^2\) jusqu'à \(\sigma_{t+T-1}^2\) :</p>
+      <div class="math deriv">\[ \begin{aligned} \sigma_{(T)}^2 &= \sum_{k=0}^{T-1}\left[\sigma_L^2 + (\alpha + \beta)^k\left(\sigma_t^2 - \sigma_L^2\right)\right] \\[3pt] &= T\,\sigma_L^2 + \left(\sigma_t^2 - \sigma_L^2\right)\frac{1 - (\alpha + \beta)^T}{1 - (\alpha + \beta)} && \small\text{somme d'une suite géométrique} \\[3pt] \sigma_{\text{GARCH}} &= \sqrt{\sigma_{(T)}^2 / T} && \small\text{volatilité journalière moyenne sur l'horizon} \end{aligned} \]</div><p class="f-leg">\(T\) : horizon en jours · \(\sigma_{(T)}^2\) : variance totale prévue sur l'horizon · \(\sigma_{\text{GARCH}}\) : volatilité journalière moyenne sur l'horizon</p>
+      <p>C'est cette volatilité moyenne qui remplace \(\sigma_{\text{jour}}\) dans la plage \(a = z\cdot\sigma\sqrt{T}\) du <a class="chref" href="#c5">chapitre 5</a> : la plage d'un mois tient compte du retour à la moyenne, alors que celle d'un jour dépend surtout de la volatilité actuelle. Un écart au niveau de long terme est divisé par deux au bout de \(\ln 0{,}5 / \ln(\alpha + \beta)\) jours.</p>
+      <p>Les paramètres ne sont pas choisis à la main : ils sont estimés sur les données. On fixe \(\omega = \bar\sigma^2\,(1 - \alpha - \beta)\), où \(\bar\sigma^2\) est la moyenne des \(r_t^2\), pour que le niveau de long terme soit la variance observée (<i>ciblage de variance</i>). Puis on cherche \(\alpha\) et \(\beta\) qui rendent les rendements observés les plus probables si chaque \(r_{t}\) suit une loi normale de variance \(\sigma_{t-1}^2\) (<i>maximum de vraisemblance</i>), ce qui revient à rendre le plus petit possible :</p>
+      <div class="math">\[ \sum_{t}\left(\ln\sigma_{t-1}^2 + \frac{r_t^2}{\sigma_{t-1}^2}\right) \]</div><p class="f-leg">\(\sigma_{t-1}^2\) : variance prévue pour le jour \(t\) · \(r_t\) : rendement observé ce jour-là</p>
+      <p>Le premier terme pénalise une variance trop grande, le second une variance trop petite par rapport aux rendements observés. Dans le laboratoire, \(\alpha\) et \(\beta\) sont réestimés tous les 30 jours avec les seules données passées, à partir de 120 bougies : le backtest n'utilise jamais l'avenir.</p>
+      <div class="box ex"><span class="lbl">Exemple chiffré</span>Sur trois ans de données Binance, l'ETH donne environ \(\alpha = 0{,}10\) et \(\beta = 0{,}56\), avec une volatilité moyenne de \(3{,}48\,\%\) par jour (\(\sigma_L^2 = 0{,}0012096\)). Supposons qu'après une semaine agitée, la variance prévue soit de \((5\,\%)^2 = 0{,}0025\). Sur un mois (\(T = 30\)) :
+        <div class="math deriv">\[ \begin{aligned} \alpha + \beta &= 0{,}66, \qquad 0{,}66^{30} \approx 0{,}000004 \\[3pt] \frac{1 - 0{,}66^{30}}{1 - 0{,}66} &\approx \frac{1}{0{,}34} \approx 2{,}941 && \small\text{facteur de la suite géométrique} \\[3pt] \sigma_{(30)}^2 &= 30 \cdot 0{,}0012096 + (0{,}0025 - 0{,}0012096) \cdot 2{,}941 \\[3pt] &= 0{,}036288 + 0{,}003795 = 0{,}040083 && \small\text{on multiplie puis on additionne} \\[3pt] \sigma_{\text{GARCH}} &= \sqrt{0{,}040083 / 30} = \sqrt{0{,}0013361} \approx 3{,}66\,\% \text{ par jour} \end{aligned} \]</div><p class="f-leg">\(\sigma_L^2 = 0{,}0012096\) : variance moyenne de l'ETH · \(0{,}0025\) : variance prévue après la semaine agitée · \(T = 30\) jours</p>
+        L'EWMA garderait 5 % par jour pour tout le mois ; GARCH prévoit que l'agitation va retomber vers 3,48 % et donne une plage environ 27 % plus étroite. Avec \(\alpha + \beta = 0{,}66\), un écart est divisé par deux en \(\ln 0{,}5 / \ln 0{,}66 \approx 1{,}7\) jour : sur l'ETH, la volatilité revient vite à la normale.</div>
+      <h3 id="sec-3-6">3.6 DVOL : la volatilité attendue par le marché</h3>
+      <p>Les cinq estimateurs précédents regardent les prix passés. Le <strong><a class="lexref" href="#lex-dvol" title="Indice de Deribit : volatilité annualisée que le marché des options attend pour les 30 prochains jours, pour le bitcoin ou l'ether.">DVOL</a></strong>, calculé par la plateforme d'options Deribit, mesure au contraire la volatilité que le marché <em>attend</em> pour les 30 prochains jours. Il existe pour le bitcoin et pour l'ether.</p>
       <p><strong>D'où vient l'information.</strong> Une option donne le droit d'acheter (call) ou de vendre (put) un actif à un prix fixé à l'avance, le <i>strike</i>. Plus les acheteurs s'attendent à de grands mouvements, plus ces droits coûtent cher. En combinant les prix de nombreuses options à des strikes différents, on peut en déduire la variance que le marché anticipe : c'est la méthode du <i>variance swap</i>, la même que celle de l'indice VIX pour le S&amp;P 500.</p>
       <p><strong>Le calcul de Deribit, en bref.</strong> Deribit prend les deux échéances d'options qui encadrent 30 jours, calcule une variance pour chacune à partir des options utiles (les options presque sans valeur, de delta inférieur à 5 %, sont écartées), puis combine les deux variances en les pondérant selon le temps, pour obtenir exactement 30 jours. La racine carrée donne la volatilité, recalculée chaque seconde puis lissée par une moyenne mobile exponentielle, comme l'EWMA du <a class="chref" href="#sec-3-4">3.4</a>. Le résultat est annualisé, dans la même unité que nos estimateurs. Pour le lire jour par jour, on inverse l'annualisation du <a class="chref" href="#sec-2-2">2.2</a> :</p>
       <div class="math deriv">\[ \begin{aligned} \sigma_{\text{jour}} &= \frac{\text{DVOL}}{\sqrt{365}} && \small\text{annualisation du 2.2, à l'envers} \\[3pt] &= \frac{70{,}6\,\%}{19{,}10} && \small\text{DVOL de l'ETH le 21 novembre 2026} \\[3pt] &\approx 3{,}7\,\% \text{ par jour} \end{aligned} \]</div><p class="f-leg">\(\text{DVOL}\) : volatilité implicite annualisée de Deribit · \(\sigma_{\text{jour}}\) : volatilité journalière correspondante · \(\sqrt{365} \approx 19{,}10\)</p>
@@ -1362,7 +1380,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
       <p class="chap-intro">Dans la pool WBTC / ETH, le prix est le nombre d'ETH qu'il faut pour un WBTC. On montre que les estimateurs s'appliquent sans changement (<a class="chref" href="#sec-4-1">4.1</a>), puis on explique pourquoi cette paire est plus calme que ses deux jetons face au dollar (<a class="chref" href="#sec-4-2">4.2</a>).</p>
 
       <h3 id="sec-4-1">4.1 La même méthode, sur le prix en ETH</h3>
-      <p>Le prix du WBTC en ETH est un prix comme un autre : on calcule les quatre estimateurs <strong>exactement de la même façon</strong>, sur ses bougies. C'est d'ailleurs le prix que la pool donne directement. Il ne faut donc pas calculer d'abord le prix du WBTC en dollars puis celui de l'ETH en dollars.</p>
+      <p>Le prix du WBTC en ETH est un prix comme un autre : on calcule les estimateurs <strong>exactement de la même façon</strong>, sur ses bougies. C'est d'ailleurs le prix que la pool donne directement. Il ne faut donc pas calculer d'abord le prix du WBTC en dollars puis celui de l'ETH en dollars.</p>
       <p>Seule petite étape : certaines plateformes donnent le prix dans l'autre sens, l'ETH en BTC. Si \(P' = 1/P\), on a \(H' = 1/L\) et \(L' = 1/H\) (le plus haut d'un prix inversé correspond au plus bas du prix de départ). Les estimateurs ne changent pas :</p>
       <div class="math deriv">\[ \begin{aligned} r'_t &= \ln\frac{1/C_t}{1/C_{t-1}} = \ln\frac{C_{t-1}}{C_t} = -r_t && \small\text{le rendement change de signe, pas sa taille} \\[3pt] \ln\frac{H'_t}{L'_t} &= \ln\frac{1/L_t}{1/H_t} = \ln\frac{H_t}{L_t} && \small\text{l'amplitude est la même} \\[3pt] \left(\ln\frac{C'_t}{O'_t}\right)^2 &= \left(-\ln\frac{C_t}{O_t}\right)^2 = \left(\ln\frac{C_t}{O_t}\right)^2 && \small\text{un carré efface le signe} \end{aligned} \]</div><p class="f-leg">\(P' = 1/P\) : prix inversé · \(O'_t, H'_t, L'_t, C'_t\) : bougie du prix inversé · \(r'_t\) : son rendement</p>
       <p>Les quatre estimateurs ne dépendent que des carrés des rendements et des amplitudes : ils donnent la même volatilité dans les deux sens.</p>
@@ -1607,7 +1625,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
         <div class="ctl">
           <span class="hint">Estimateur utilisé pour la plage :</span>
           <div class="presets" id="vEst" role="group" aria-label="Estimateur">
-            <button type="button" data-e="cc" class="on">Close-to-close</button><button type="button" data-e="pk">Parkinson</button><button type="button" data-e="gk">Garman-Klass</button><button type="button" data-e="ew">EWMA</button><button type="button" data-e="dv">DVOL</button>
+            <button type="button" data-e="cc" class="on">Close-to-close</button><button type="button" data-e="pk">Parkinson</button><button type="button" data-e="gk">Garman-Klass</button><button type="button" data-e="ew">EWMA</button><button type="button" data-e="ga">GARCH</button><button type="button" data-e="dv">DVOL</button>
           </div>
         </div>
         <div class="ctl">
@@ -1631,6 +1649,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
             <div class="stat"><span class="k">Parkinson</span><span class="v" id="vsPK"></span><span class="s" id="vsPKd"></span></div>
             <div class="stat"><span class="k">Garman-Klass</span><span class="v" id="vsGK"></span><span class="s" id="vsGKd"></span></div>
             <div class="stat"><span class="k">EWMA</span><span class="v" id="vsEW"></span><span class="s" id="vsEWd"></span></div>
+            <div class="stat"><span class="k">GARCH(1,1)</span><span class="v" id="vsGA"></span><span class="s" id="vsGAd"></span></div>
             <div class="stat"><span class="k" id="vsDVk">DVOL (implicite)</span><span class="v" id="vsDV"></span><span class="s" id="vsDVd"></span></div>
             <div class="stat"><span class="k">Dernier prix</span><span class="v" id="vsP"></span><span class="s" id="vsPd"></span></div>
             <div class="stat"><span class="k">Plage proposée</span><span class="v" id="vsR"></span><span class="s" id="vsRd"></span></div>
@@ -1652,6 +1671,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
             <span><i style="background:var(--accent)"></i>Parkinson</span>
             <span><i style="background:var(--v2)"></i>Garman-Klass</span>
             <span><i style="background:var(--ewm)"></i>EWMA</span>
+            <span><i style="background:var(--garch)"></i>GARCH</span>
             <span class="v-dvleg"><i style="background:var(--dvol)"></i>DVOL (implicite)</span>
           </div>
           <canvas id="vcPrice" class="c-vprice" aria-label="Prix de la pool, plage proposée et volatilité"></canvas>
@@ -1732,6 +1752,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
         <dt id="lex-annualiser">Annualiser</dt><dd>Ramener une volatilité journalière à une année : on la multiplie par la racine du nombre de jours de cotation (365 en crypto, 252 en bourse).</dd>
         <dt id="lex-estimateur">Estimateur</dt><dd>Formule qui donne une valeur approchée d'une grandeur inconnue (ici la volatilité) à partir des données.</dd>
         <dt id="lex-ewma">EWMA</dt><dd><i>Exponentially Weighted Moving Average</i> : moyenne mobile où le poids des jours anciens diminue de façon exponentielle.</dd>
+        <dt id="lex-garch">GARCH(1,1)</dt><dd>Modèle de Bollerslev (1986) : la variance de demain dépend du dernier rendement, de la variance d'aujourd'hui et d'un niveau de long terme vers lequel elle revient (3.5).</dd>
         <dt id="lex-meche">Mèche</dt><dd>Prix extrême isolé dans une bougie (un plus haut ou un plus bas très éloigné du reste), souvent dû à un seul gros échange.</dd>
         <dt id="lex-correlation">Corrélation</dt><dd>Nombre entre −1 et 1 qui mesure à quel point deux séries bougent ensemble (1 : toujours dans le même sens).</dd>
         <dt id="lex-reflexion">Principe de réflexion</dt><dd>Propriété du mouvement brownien : après avoir touché une borne, le chemin et son reflet dans un miroir posé sur la borne sont aussi probables l'un que l'autre.</dd>
@@ -1751,7 +1772,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
       <h2>Sources et pour aller plus loin</h2>
       <p>Les documents ci-dessous ont servi à construire ce site.</p>
       <h3 id="sec-11-1">11.1 Mesurer la volatilité</h3>
-      <ul class="sources"><li><a class="src-link" href="https://doi.org/10.1086/296071" target="_blank" rel="noopener">The Extreme Value Method for Estimating the Variance of the Rate of Return</a><span class="src-a">M. Parkinson, The Journal of Business, 1980</span><span class="src-w">L'estimateur fondé sur le plus haut et le plus bas (3.2).</span></li><li><a class="src-link" href="https://arxiv.org/abs/0807.3492" target="_blank" rel="noopener">The Garman–Klass volatility estimator revisited</a><span class="src-a">I. Meilijson, 2008 ; article d'origine : M. Garman et M. Klass, The Journal of Business, 1980</span><span class="src-w">Présente et discute l'estimateur à quatre prix (3.3) et sa précision.</span></li><li><a class="src-link" href="https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document" target="_blank" rel="noopener">RiskMetrics — Technical Document</a><span class="src-a">J.P. Morgan et Reuters, 4e édition, 1996</span><span class="src-w">La méthode EWMA (3.4) et le choix λ = 0,94 pour des données journalières.</span></li><li><a class="src-link" href="https://doi.org/10.1214/aoms/1177729589" target="_blank" rel="noopener">The Asymptotic Distribution of the Range of Sums of Independent Random Variables</a><span class="src-a">W. Feller, The Annals of Mathematical Statistics, 1951 (accès libre)</span><span class="src-w">La loi de l'amplitude d'un mouvement brownien, d'où vient le facteur \(4\ln 2\) de Parkinson (3.2).</span></li><li><a class="src-link" href="https://fr.wikipedia.org/wiki/Mouvement_brownien" target="_blank" rel="noopener">Mouvement brownien</a><span class="src-a">Wikipédia (français)</span><span class="src-w">Le modèle de prix sans tendance derrière Parkinson, Garman-Klass et le principe de réflexion ; propriété d'échelle utilisée au 3.2.</span></li><li><a class="src-link" href="https://insights.deribit.com/exchange-updates/dvol-deribit-implied-volatility-index/" target="_blank" rel="noopener">DVOL — Deribit Implied Volatility Index</a><span class="src-a">Deribit Insights</span><span class="src-w">La méthode de calcul du DVOL (3.5).</span></li></ul>
+      <ul class="sources"><li><a class="src-link" href="https://doi.org/10.1086/296071" target="_blank" rel="noopener">The Extreme Value Method for Estimating the Variance of the Rate of Return</a><span class="src-a">M. Parkinson, The Journal of Business, 1980</span><span class="src-w">L'estimateur fondé sur le plus haut et le plus bas (3.2).</span></li><li><a class="src-link" href="https://arxiv.org/abs/0807.3492" target="_blank" rel="noopener">The Garman–Klass volatility estimator revisited</a><span class="src-a">I. Meilijson, 2008 ; article d'origine : M. Garman et M. Klass, The Journal of Business, 1980</span><span class="src-w">Présente et discute l'estimateur à quatre prix (3.3) et sa précision.</span></li><li><a class="src-link" href="https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document" target="_blank" rel="noopener">RiskMetrics — Technical Document</a><span class="src-a">J.P. Morgan et Reuters, 4e édition, 1996</span><span class="src-w">La méthode EWMA (3.4) et le choix λ = 0,94 pour des données journalières.</span></li><li><a class="src-link" href="https://doi.org/10.1016/0304-4076(86)90063-1" target="_blank" rel="noopener">Generalized Autoregressive Conditional Heteroskedasticity</a><span class="src-a">T. Bollerslev, Journal of Econometrics, 1986</span><span class="src-w">Le modèle GARCH (3.5).</span></li><li><a class="src-link" href="https://doi.org/10.1214/aoms/1177729589" target="_blank" rel="noopener">The Asymptotic Distribution of the Range of Sums of Independent Random Variables</a><span class="src-a">W. Feller, The Annals of Mathematical Statistics, 1951 (accès libre)</span><span class="src-w">La loi de l'amplitude d'un mouvement brownien, d'où vient le facteur \(4\ln 2\) de Parkinson (3.2).</span></li><li><a class="src-link" href="https://fr.wikipedia.org/wiki/Mouvement_brownien" target="_blank" rel="noopener">Mouvement brownien</a><span class="src-a">Wikipédia (français)</span><span class="src-w">Le modèle de prix sans tendance derrière Parkinson, Garman-Klass et le principe de réflexion ; propriété d'échelle utilisée au 3.2.</span></li><li><a class="src-link" href="https://insights.deribit.com/exchange-updates/dvol-deribit-implied-volatility-index/" target="_blank" rel="noopener">DVOL — Deribit Implied Volatility Index</a><span class="src-a">Deribit Insights</span><span class="src-w">La méthode de calcul du DVOL (3.6).</span></li></ul>
       <h3 id="sec-11-2">11.2 Liquidité concentrée</h3>
       <ul class="sources"><li><a class="src-link" href="https://dex-v3-presentation.vercel.app/" target="_blank" rel="noopener">Présentation CLMM</a><span class="src-a">Q. Mathil, travail de maturité, 2026</span><span class="src-w">Le cours interactif sur Uniswap v3 dont sont tirées les formules des ticks (<a class="chref" href="https://dex-v3-presentation.vercel.app/#sec-7-1" target="_blank" rel="noopener">7.1</a>) et de l'efficacité (<a class="chref" href="https://dex-v3-presentation.vercel.app/#sec-3-3" target="_blank" rel="noopener">3.3</a>).</span></li><li><a class="src-link" href="https://uniswap.org/whitepaper-v3.pdf" target="_blank" rel="noopener">Uniswap v3 Core (livre blanc)</a><span class="src-a">H. Adams, N. Zinsmeister, M. Salem, R. Keefer, D. Robinson, 2021</span><span class="src-w">Le document officiel qui introduit la liquidité concentrée et les ticks.</span></li></ul>
       <h3 id="sec-11-3">11.3 Données de prix</h3>
@@ -2120,7 +2141,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
   const dShort = d => MOIS[d.getUTCMonth()]+' '+String(d.getUTCFullYear()).slice(2);
   const fpx = v => { const a=Math.abs(v); return a>=1000?f(v,0):a>=100?f(v,1):a>=1?f(v,2):f(v,4); };
   const GKC = 2*Math.LN2-1, LN_TICK = Math.log(1.0001);
-  const ALL_EST = [ {k:'cc',n:'Close-to-close',c:'--hold'}, {k:'pk',n:'Parkinson',c:'--accent'}, {k:'gk',n:'Garman-Klass',c:'--v2'}, {k:'ew',n:'EWMA',c:'--ewm'}, {k:'dv',n:'DVOL',c:'--dvol'} ];
+  const ALL_EST = [ {k:'cc',n:'Close-to-close',c:'--hold'}, {k:'pk',n:'Parkinson',c:'--accent'}, {k:'gk',n:'Garman-Klass',c:'--v2'}, {k:'ew',n:'EWMA',c:'--ewm'}, {k:'ga',n:'GARCH',c:'--garch'}, {k:'dv',n:'DVOL',c:'--dvol'} ];
   let EST = ALL_EST;   // le DVOL n'existe que pour les pools ETH et BTC
   const S = { pool:0, src:'on', win:90, est:'cc', lam:0.94, hz:7, p:0.20, reb:false };
   const PCAL = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60];
@@ -2157,6 +2178,33 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
   }
   // nombre de bougies dans l'horizon (en bourse, 1 semaine = 5 séances)
   const hzSteps = () => (S.src==='lg' && D[S.pool].lgN===252) ? Math.max(1,Math.round(S.hz*252/365)) : S.hz;
+  // ---------- GARCH(1,1) avec ciblage de variance (3.5) ----------
+  // α et β réestimés tous les 30 bougies par maximum de vraisemblance, avec les seules données passées (à partir de 120 bougies)
+  const GA_MIN=120, GA_STEP=30, gaCache={};
+  function nelder(f,x0){ // Nelder-Mead en 2 dimensions
+    let P=[x0,[x0[0]+0.6,x0[1]],[x0[0],x0[1]+0.6]].map(x=>({x,v:f(x)}));
+    for(let it=0;it<160;it++){ P.sort((a,b)=>a.v-b.v); const [b,g,w]=P, c=[(b.x[0]+g.x[0])/2,(b.x[1]+g.x[1])/2];
+      const at=t=>[c[0]+t*(w.x[0]-c[0]),c[1]+t*(w.x[1]-c[1])], r={x:at(-1)}; r.v=f(r.x);
+      if(r.v<b.v){ const e={x:at(-2)}; e.v=f(e.x); P[2]=e.v<r.v?e:r; }
+      else if(r.v<g.v) P[2]=r;
+      else { const k={x:at(r.v<w.v?-0.5:0.5)}; k.v=f(k.x); if(k.v<Math.min(w.v,r.v)) P[2]=k; else P=[b,...[g,w].map(q=>{ const x=[(q.x[0]+b.x[0])/2,(q.x[1]+b.x[1])/2]; return {x,v:f(x)}; })]; }
+      if(Math.abs(P[2].v-P[0].v)<1e-9) break; }
+    P.sort((a,b)=>a.v-b.v); return P[0].x; }
+  const gaPar=(y,vb)=>{ const p=0.999/(1+Math.exp(-y[0])), sh=1/(1+Math.exp(-y[1])); return {al:p*sh, be:p*(1-sh), p, om:vb*(1-p), vb}; };
+  function garchBase(s){
+    const key=S.pool+'|'+S.src; if(gaCache[key]) return gaCache[key];
+    const n=s.n, r=s.r, out={v:new Array(n).fill(NaN), par:new Array(n).fill(null)};
+    let y=[Math.log(0.9/0.099),Math.log(0.1/0.9)];
+    for(let t0=GA_MIN;t0<n;t0+=GA_STEP){
+      let vb=0; for(let j=1;j<=t0;j++) vb+=r[j]*r[j]; vb/=t0;
+      const nll=x=>{ const q=gaPar(x,vb); let v=vb, L=0; for(let j=1;j<=t0;j++){ const r2=r[j]*r[j]; L+=Math.log(v)+r2/v; v=q.om+q.al*r2+q.be*v; } return L; };
+      const a=nelder(nll,y), b=nelder(nll,[2.2,-2.2]); y=nll(a)<=nll(b)?a:b;
+      const q=gaPar(y,vb), end=Math.min(n-1,t0+GA_STEP-1); let v=vb;
+      for(let j=1;j<=end;j++){ v=q.om+q.al*r[j]*r[j]+q.be*v; if(j>=t0){ out.v[j]=v; out.par[j]=q; } }   // v = σ_j² : variance prévue pour le lendemain
+    }
+    return gaCache[key]=out; }
+  // volatilité journalière moyenne sur h bougies : √( [h·σ_L² + (σ_t² − σ_L²)(1 − pʰ)/(1 − p)] / h )
+  const gaHorizon=(v,q,h)=>Math.sqrt(Math.max(0,h*q.vb+(v-q.vb)*(1-Math.pow(q.p,h))/(1-q.p))/h);
   function compute(){
     const s=series(S.pool,S.src), n=s.n, w=Math.min(S.win,n-1);
     const R1=[0],R2=[0],H=[0],G=[0];
@@ -2179,9 +2227,11 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
         for(let j=0;j<n;j++){ const d=iso(s.dates[j]), b=dvolAt('btc',d), e=dvolAt('eth',d), r=rho[d];
           if(isFinite(b)&&isFinite(e)&&isFinite(r)) dv[j]=Math.sqrt(Math.max(0,b*b+e*e-2*r*b*e))/sq; } }
       else for(let j=0;j<n;j++){ const v=dvolAt(kind,iso(s.dates[j])); if(isFinite(v)) dv[j]=v/sq; } }
-    const day={cc:cc[last],pk:pk[last],gk:gk[last],ew:ew[last],dv:dv[last]};
+    const gb=garchBase(s), hh=hzSteps(), ga=new Array(n).fill(NaN);
+    for(let j=0;j<n;j++){ const q=gb.par[j]; if(q) ga[j]=gaHorizon(gb.v[j],q,hh); }
+    const day={cc:cc[last],pk:pk[last],gk:gk[last],ew:ew[last],ga:ga[last],dv:dv[last]};
     const an={}; Object.keys(day).forEach(k=>an[k]=day[k]*sq);
-    const M={s,n,w,cc,pk,gk,ew,dv,day,an,sq};
+    const M={s,n,w,cc,pk,gk,ew,ga,dv,day,an,sq,gpar:gb.par[last],gv:gb.v[last]};
     M.bt=backtest(M);
     return M;
   }
@@ -2393,7 +2443,8 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
     $('vChip').textContent='Fenêtre : '+M.w+' bougies'; $('vChip').className='chip in';
     $('vChipNote').textContent='du '+dLong(s.dates[s.n-M.w])+' au '+dLong(T1)+' · annualisation √'+s.N;
     const nv=s.n-M.w; $('vSigNote').textContent = nv<30 ? ('Avec une fenêtre de '+M.w+' bougies sur '+s.n+' bougies de données, close-to-close, Parkinson et Garman-Klass n\'ont que '+nv+' valeur'+(nv>1?'s':'')+' (il leur faut '+M.w+' bougies avant la première) ; seule l\'EWMA couvre toute la période. Choisissez une fenêtre plus courte ou l\'historique long.') : '';
-    [['cc','CC'],['pk','PK'],['gk','GK'],['ew','EW'],['dv','DV']].forEach(([k,id])=>{ $('vs'+id).textContent=pc(M.an[k]); $('vs'+id+'d').textContent=isFinite(M.day[k])?pc(M.day[k],2)+' par jour':'pas d\'options sur cet actif'; });
+    [['cc','CC'],['pk','PK'],['gk','GK'],['ew','EW'],['ga','GA'],['dv','DV']].forEach(([k,id])=>{ $('vs'+id).textContent=pc(M.an[k]); $('vs'+id+'d').textContent=isFinite(M.day[k])?pc(M.day[k],2)+' par jour':(k==='ga'?'il faut au moins '+GA_MIN+' bougies':'pas d\'options sur cet actif'); });
+    if(M.gpar) $('vsGAd').textContent=pc(M.day.ga,2)+' par jour sur '+HZ[S.hz]+' · α + β = '+f(M.gpar.p,2);
     $('vsDVk').textContent = pl.dvol==='pair' ? 'DVOL (BTC et ETH, 4.2)' : 'DVOL (implicite)';
     $('vsP').textContent=fpx(R.P0)+' '+pl.quote; $('vsPd').textContent='clôture du '+dLong(T1);
     $('vsR').textContent='['+fpx(R.P0/R.k)+' ; '+fpx(R.P0*R.k)+']';
@@ -2423,7 +2474,13 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
     $('vBtBoxes').textContent=nb?('Plages successives de l\'estimateur '+EST.find(e=>e.k===S.est).n+' : '+ok+' tenues jusqu\'à l\'horizon (vert) et '+(nb-ok)+' quittées (rouge) sur '+nb+(S.reb?' ; après chaque sortie, la plage suivante commence le jour même.':'.')):'';
     const en=EST.find(e=>e.k===S.est).n, za=PhiInv(1-S.p/4);
     const row=(l,e,r)=>`<div class="f-row"><span>${l}</span><span class="eq">${e} = <b>${r}</b></span></div>`;
-    $('vFormulas').innerHTML=[
+    const gq=M.gpar, gRows=(S.est==='ga'&&gq)?[
+      row('GARCH','α + β = '+f(gq.al,3)+' + '+f(gq.be,3)+'  (ω = σ_L²·(1 − α − β))', f(gq.p,3)),
+      row('Long terme','σ_L = √(moyenne des r²) = √'+f(gq.vb,6), pc(Math.sqrt(gq.vb),2)+' par jour'),
+      row('Demain','σ_t = √'+f(M.gv,6), pc(Math.sqrt(M.gv),2)+' par jour'),
+      row('Moyenne sur T','√([T·σ_L² + (σ_t² − σ_L²)(1 − (α+β)^T)/(1 − α − β)] / T), T = '+hzSteps(), pc(M.day.ga,2)+' par jour'),
+      row('Demi-vie d\'un écart','ln 0,5 / ln(α + β)', f(Math.log(.5)/Math.log(gq.p),1)+' jours')]:[];
+    $('vFormulas').innerHTML=[...gRows,
       row('σ ('+en+')','σ_jour × √'+s.N+' = '+f(sd,5)+' × '+f(M.sq,3), pc(sig,2)+' par an'),
       row('Horizon','s = σ·√T = '+f(sig,4)+' × √('+S.hz+'/365) = '+f(sig,4)+' × '+f(Math.sqrt(R.T),4), f(R.sd,4)),
       row('Quantile exact','z tel que p_sortie(z) = '+pc(S.p,0)+'  (approché : Φ⁻¹(1 − p/4) = '+f(za,3)+')', f(R.z,3)),
@@ -2440,6 +2497,7 @@ button.lex-back.lex-back:hover{color:var(--accent)!important}
   function emptyMsg(k){
     const n=M.s.n, h=hzSteps(), need=(k==='ew'?30:M.w)+h+1, pl=D[S.pool];
     if(k==='dv') return 'Pas assez de valeurs du DVOL sur cette période.';
+    if(k==='ga') return 'GARCH a besoin d\'au moins '+GA_MIN+' bougies pour estimer α et β, plus l\'horizon ('+n+' bougies ici).'+(S.src==='on'&&pl.lg?' <button type="button" class="bt-go" data-go-src="lg">Essayer avec « Historique long »</button>':'');
     if(S.src==='on' && pl.lg) return 'Historique de la pool on-chain trop court ('+n+' bougies) pour une fenêtre de '+M.w+' bougies et un horizon de '+h+(h>1?' bougies':' bougie')+'. <button type="button" class="bt-go" data-go-src="lg">Essayer avec « Historique long »</button> ou choisir une fenêtre plus courte.';
     return 'Historique trop court ('+n+' bougies) : il en faut au moins '+need+' pour une fenêtre de '+M.w+' et un horizon de '+h+'. Choisissez une fenêtre plus courte.';
   }
